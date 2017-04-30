@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "ObjectManager.h"
 
-ObjectHandle ObjectManager::Add()
+ObjectHandle ObjectManager::Add(const char* name)
 {
+	bool con = objectNameMap.find(name) == objectNameMap.end();
+	assert(con && "that name already exists");
+
 	objectList.emplace_back();
 
 	if (!freeIndexQueue.empty())
@@ -32,6 +35,8 @@ ObjectHandle ObjectManager::Add()
 
 		ObjectHandle handle = Handle(handleList.size() - 1, entry.count);
 		objectList.back().handle = handle;
+		objectList.back().name = name;
+		objectNameMap.emplace(name, handle);
 		return handle;
 	}
 }
@@ -49,6 +54,14 @@ Object * ObjectManager::Get(const ObjectHandle & handle)
 	return &objectList[entry.index];
 }
 
+Object * ObjectManager::GetByName(const char * name)
+{
+	auto it = objectNameMap.find(name);
+	if (it == objectNameMap.end())
+		return nullptr;
+	return Get(it->second);
+}
+
 void ObjectManager::Delete(const ObjectHandle & handle)
 {
 	bool con = handleList.size() > handle.index;
@@ -57,6 +70,8 @@ void ObjectManager::Delete(const ObjectHandle & handle)
 	freeIndexQueue.emplace_back(handle.index);
 	HandleEntry& entry = handleList[handle.index];
 	entry.isActive = false;
+
+	objectNameMap.erase(objectList[entry.index].name);
 
 	if (objectList.size() > 1)
 	{

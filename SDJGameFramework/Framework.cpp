@@ -9,8 +9,8 @@ void Framework::Init(HWND hwnd, HINSTANCE hinstance, HDC& memDC)
 
 	graphic.Init(hWnd, memDC);
 
-	ObjectHandle tempObj = OM.Add();
-	ObjectHandle tempObj2 = OM.Add();
+	ObjectHandle tempObj = OM.Add("tempObj");
+	ObjectHandle tempObj2 = OM.Add("tempObj2");
 	ComponentHandle tempCompo = AddComponent(EllipseComponent, tempObj);
 	ComponentHandle tempCompo2 = AddComponent(EllipseComponent, tempObj2);
 

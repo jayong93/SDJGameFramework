@@ -12,7 +12,7 @@ public:
 	Component() {}
 	virtual ~Component() {}
 
-	virtual void SendMessage(Message& msg) = 0;
+	virtual void SendMsg(Message& msg) = 0;
 
 	ObjectHandle owner;
 	ComponentHandle handle;
@@ -29,7 +29,7 @@ public:
 	{}
 	virtual ~GraphicComponent() {}
 
-	virtual void SendMessage(Message& msg) {}
+	virtual void SendMsg(Message& msg) {}
 	virtual void Draw(HDC hdc) = 0;
 
 	unsigned penWidth;

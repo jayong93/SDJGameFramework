@@ -13,8 +13,9 @@ public:
 		return inst;
 	}
 
-	ObjectHandle Add();
+	ObjectHandle Add(const char* name);
 	Object* Get(const ObjectHandle & handle);
+	Object* GetByName(const char* name);
 	void Delete(const ObjectHandle & handle);
 
 private:
@@ -30,4 +31,5 @@ private:
 	std::vector<HandleEntry> handleList;
 	std::deque<unsigned> freeIndexQueue;
 	std::vector<Object> objectList;
+	std::unordered_map<std::string, ObjectHandle> objectNameMap;
 };

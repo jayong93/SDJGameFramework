@@ -24,6 +24,10 @@ void ComponentManager::Detele(const ComponentHandle & handle)
 	entry.isActive = false;
 
 	ICompoList* list = compoLists.at(entry.type);
+
+	Object* owner = OM.Get(list->Get(entry.index)->owner);
+	owner->compoMap.erase(entry.type);
+
 	ComponentHandle lastHandle = list->Delete(entry.index);
 
 	if (lastHandle)
@@ -76,7 +80,6 @@ ComponentHandle ComponentManager::Add(size_t type, const ObjectHandle & obj)
 	ComponentHandle handle = Handle(index, entry->count);
 	compo->handle = handle;
 
-	owner->compoList.emplace_back(handle);
 	owner->compoMap.emplace(type, handle);
 
 	return handle;
