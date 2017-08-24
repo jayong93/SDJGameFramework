@@ -1,54 +1,37 @@
 #pragma once
 
 #include "Handles.h"
-#include "Color.h"
-#include "Vector2D.h"
+#include "Vector3D.h"
 
 struct Message;
 
-class Component
+/*
+모든 컴포넌트들의 조상
+owner - 컴포넌트를 소유하는 오브젝트의 핸들
+handle - 컴포넌트의 식별자
+*/
+struct Component
 {
-public:
-	Component() {}
 	virtual ~Component() {}
 
-	virtual void SendMsg(Message& msg) = 0;
+	virtual void SendMsg(Message& msg) {};
 
 	ObjectHandle owner;
 	ComponentHandle handle;
 };
 
-class GraphicComponent : public Component
+struct ShapeCompo : public Component
 {
-public:
-	GraphicComponent() :
-		penWidth{ 1 },
-		penColor{ 0,0,0 },
-		brushColor{ 255,255,255 },
-		order{ 0 }
-	{}
-	virtual ~GraphicComponent() {}
+	virtual ~ShapeCompo() {}
 
-	virtual void SendMsg(Message& msg) {}
-	virtual void Draw(HDC hdc) = 0;
-
-	unsigned penWidth;
-	int order;
-	Color penColor, brushColor;
+	enum {NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT} shapeType;
+	double drawParam[4] = { 0.f, 0.f, 0.f, 0.f };
+	Vector3D color;
 };
 
-class EllipseComponent : public GraphicComponent
+struct LuaCompo : public Component
 {
-public:
-	virtual void Draw(HDC hdc);
+	virtual ~LuaCompo() {}
 
-	unsigned radius;
-};
-
-class PolygonComponent : public GraphicComponent
-{
-public:
-	virtual void Draw(HDC hdc);
-
-	std::vector<Vector2D> points;
+	std::string scriptName;
 };

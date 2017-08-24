@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "ObjectManager.h"
 
-ObjectHandle ObjectManager::Add(const char* name)
+ObjectHandle ObjectManager::Add(const char* name, float x, float y, float z)
 {
 	bool con = objectNameMap.find(name) == objectNameMap.end();
-	assert(con && "that name already exists");
+	assert(con && "the name already exists");
 
 	objectList.emplace_back();
 
@@ -34,8 +34,10 @@ ObjectHandle ObjectManager::Add(const char* name)
 		entry.index = objectList.size() - 1;
 
 		ObjectHandle handle = Handle(handleList.size() - 1, entry.count);
-		objectList.back().handle = handle;
-		objectList.back().name = name;
+		Object& obj = objectList.back();
+		obj.handle = handle;
+		obj.name = name;
+		obj.position = Vector3D{ x,y,z };
 		objectNameMap.emplace(name, handle);
 		return handle;
 	}

@@ -2,55 +2,41 @@
 #include "Systems.h"
 #include "Framework.h"
 
-void Framework::Init(HWND hwnd, HINSTANCE hinstance, HDC& memDC)
+void Framework::Init()
 {
-	this->hWnd = hwnd;
-	this->hInst = hinstance;
+	// 루아 초기화
+	sol::state lua;
 
-	graphic.Init(hWnd, memDC);
+	// 시스템 초기화
+	render.Init();
 
-	ObjectHandle tempObj = OM.Add("tempObj");
-	ObjectHandle tempObj2 = OM.Add("tempObj2");
-	ComponentHandle tempCompo = AddComponent(EllipseComponent, tempObj);
-	ComponentHandle tempCompo2 = AddComponent(EllipseComponent, tempObj2);
+	ObjectHandle tObj = OM.Add("TestObj", 1.f, 1.f, 0.f);
+	ObjectHandle tObj2 = OM.Add("TestObj2", 0.f, 0.f, 2.f);
 
-	auto obj = OM.Get(tempObj);
-	auto obj2 = OM.Get(tempObj2);
-	auto compo = CM.GetBy<EllipseComponent>(tempCompo);
-	auto compo2 = CM.GetBy<EllipseComponent>(tempCompo2);
+	ComponentHandle shapeHandle = CM.Add<ShapeCompo>();
+	ShapeCompo* shape = CM.GetBy<ShapeCompo>(shapeHandle);
+	shape->shapeType = ShapeCompo::SPHERE;
+	shape->drawParam[0] = 5.f;
+	shape->drawParam[1] = 20.f;
+	shape->drawParam[2] = 20.f;
+	OM.Get(tObj)->AddComponent(shapeHandle);
 
-	obj->position.Set(100, 100);
-	obj2->position.Set(110, 100);
-	compo->penWidth = 5;
-	compo->radius = 20;
-	compo->brushColor.Set(255, 0, 0);
-	compo->penColor.Set(0, 0, 255);
-	compo->order = 20;
-
-	compo2->penWidth = 2;
-	compo2->radius = 20;
-	compo2->brushColor.Set(155, 0, 0);
-	compo2->penColor.Set(0, 0, 155);
-	compo2->order = 10;
-
-	prevTimePoint = std::chrono::system_clock::now();
+	shapeHandle = CM.Add<ShapeCompo>();
+	shape = CM.GetBy<ShapeCompo>(shapeHandle);
+	shape->shapeType = ShapeCompo::CUBE;
+	shape->drawParam[0] = 4.f;
+	OM.Get(tObj2)->AddComponent(shapeHandle);
 }
 
 void Framework::Update(double time)
 {
-	graphic.Update();
+}
+
+void Framework::Render()
+{
+	render.Render();
 }
 
 void Framework::MainLoop()
 {
-	auto timePoint = std::chrono::system_clock::now();
-
-	std::chrono::duration<double> timeElapsed = timePoint - prevTimePoint;
-
-	if (timeElapsed.count() >= 1 / 60.)
-	{
-		Update(timeElapsed.count());
-
-		prevTimePoint = timePoint;
-	}
 }

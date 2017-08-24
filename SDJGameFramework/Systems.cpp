@@ -4,65 +4,31 @@
 
 using namespace std;
 
-Graphic::~Graphic()
+void RenderSystem::Init()
 {
-	if (bitmap)
-		DeleteObject(bitmap);
-	if (hdc)
-		DeleteDC(hdc);
+	CM.RegisterComponentList<ShapeCompo>(&this->shapesList);
 }
 
-void Graphic::Init(HWND hWnd, HDC & memDC)
+void RenderSystem::Render()
 {
-	this->hWnd = hWnd;
-
-	HDC orgDC = GetDC(hWnd);
-	hdc = CreateCompatibleDC(orgDC);
-
-	RECT crt;
-	GetClientRect(hWnd, &crt);
-	bitmap = CreateCompatibleBitmap(orgDC, crt.right - crt.left, crt.bottom - crt.top);
-
-	SelectObject(hdc, bitmap);
-	memDC = hdc;
-
-	ReleaseDC(hWnd, orgDC);
-
-	RegisterComponent(ellipseList);
-	RegisterComponent(polygonList);
-}
-
-void Graphic::Update()
-{
-	RECT crt;
-	GetClientRect(hWnd, &crt);
-	FillRect(hdc, &crt, (HBRUSH)GetStockObject(WHITE_BRUSH));
-
-	struct OrderComp
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	for (auto& s : shapesList)
 	{
-	public:
-		bool operator() (const pair<int, ComponentHandle>& a, const pair<int, ComponentHandle>& b)
+		Object* owner = OM.Get(s.owner);
+		glPushMatrix();
 		{
-			return (a.first < b.first);
+			glTranslatef(owner->position.x, owner->position.y, owner->position.z);
+			if (s.shapeType == ShapeCompo::CUBE)
+			{
+				glutWireCube(s.drawParam[0]);
+			}
+			else if (s.shapeType == ShapeCompo::SPHERE)
+			{
+				glutWireSphere(s.drawParam[0], s.drawParam[1], s.drawParam[2]);
+			}
 		}
-	};
-
-	priority_queue<pair<int, ComponentHandle>, vector<pair<int, ComponentHandle>>, OrderComp> orderHeap;
-
-	for_each(ellipseList.arr.begin(), ellipseList.arr.end(), [&orderHeap](const auto& c) {
-		orderHeap.emplace(c.order, c.handle);
-	});
-	for_each(polygonList.arr.begin(), polygonList.arr.end(), [&orderHeap](const auto& c) {
-		orderHeap.emplace(c.order, c.handle);
-	});
-
-	while (orderHeap.empty() == false)
-	{
-		const ComponentHandle& handle = orderHeap.top().second;
-		GraphicComponent* compo = (GraphicComponent*)CM.Get(handle);
-		compo->Draw(hdc);
-		orderHeap.pop();
+		glPopMatrix();
 	}
-
-	InvalidateRect(hWnd, nullptr, false);
+	glFlush();
 }

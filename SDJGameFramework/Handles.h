@@ -9,7 +9,8 @@ struct Handle
 
 	bool operator==(const Handle& h) { return (index == h.index) && (count == h.count); }
 
-	operator bool() { return (count != 0); }
+	operator bool() const { return (count != 0); }
+	operator uint64_t() const { return uint64_t(index) << 24 | (0xffffff & count); }
 
 	unsigned index;
 	unsigned count;

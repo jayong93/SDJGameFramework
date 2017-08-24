@@ -34,3 +34,5 @@
 *.pdb
 *.idb
 .vs/*
+*.log
+*.tlog

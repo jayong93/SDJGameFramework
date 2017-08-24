@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Windows.h>
 #include <vector>
 #include <deque>
 #include <memory>
@@ -13,3 +12,5 @@
 #include <cassert>
 #include <queue>
 #include <functional>
+#include "sol.hpp"
+#include <glut.h>

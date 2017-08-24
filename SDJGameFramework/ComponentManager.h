@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Component.h"
+#include "ComponentType.h"
 
 #define CM ComponentManager::Instance()
-#define RegisterComponent(list) \
-	ComponentManager::Instance().RegisterComponentList((typeid(decltype(list)::CompoType)).hash_code(), &(list))
-#define AddComponent(CType, OHandle) \
-	ComponentManager::Instance().Add((typeid(CType)).hash_code(), OHandle)
+// #define RegisterComponent(list) \
+//	ComponentManager::Instance().RegisterComponentList((typeid(decltype(list)::CompoType)).hash_code(), &(list))
+// #define AddComponent(CType, OHandle) \
+//	ComponentManager::Instance().Add((typeid(CType)).hash_code(), OHandle)
 
 class ICompoList
 {
@@ -63,9 +64,25 @@ public:
 		return &arr.back();
 	}
 
+	auto begin() const
+	{
+		return arr.begin();
+	}
+
+	auto end() const
+	{
+		return arr.end();
+	}
+
 	std::vector<CompoType> arr;
 };
 
+/*
+여러 종류의 컴포넌트들을 관리하는 객체
+compoMap - 컴포넌트의 종류와 해당 컴포넌트 배열을 연결
+handleList - 핸들과 실제 값을 연결할 데이터들의 집합
+freeIndexQueue - 컴포넌트가 제거되었을 때, 핸들과 연결된 엔트리의 인덱스를 재활용하기 위해서 보관
+*/
 class ComponentManager
 {
 public:
@@ -81,14 +98,16 @@ public:
 	Component* Get(const ComponentHandle& handle);
 	void Detele(const ComponentHandle& handle);
 
-	ComponentHandle Add(size_t type, const ObjectHandle& obj);
+	template <typename T>
+	ComponentHandle Add();
 
-	void RegisterComponentList(size_t type, ICompoList* list);
+	template <typename T>
+	void RegisterComponentList(ICompoList* list);
 
 private:
 	ComponentManager() {}
 	~ComponentManager() {}
-	std::map<size_t, ICompoList*> compoLists;
+	std::map<size_t, ICompoList*> compoMap;
 
 	struct HandleEntry
 	{
@@ -112,4 +131,53 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 		return nullptr;
 
 	return (T*)compo;
+}
+
+template<typename T>
+inline ComponentHandle ComponentManager::Add()
+{
+	size_t type = typeid(T).hash_code();
+	auto it = compoMap.find(type);
+	bool con = it != compoMap.end();
+	assert(con && "unregistered type");
+
+	Component* compo = it->second->Add();
+
+	HandleEntry* entry;
+	unsigned index;
+
+	if (!freeIndexQueue.empty())
+	{
+		index = freeIndexQueue.front();
+		freeIndexQueue.pop_front();
+		entry = &handleList[index];
+		++entry->count;
+		if (entry->count == 0)
+			entry->count = 1;
+	}
+	else
+	{
+		handleList.emplace_back();
+		index = handleList.size() - 1;
+		entry = &handleList.back();
+		entry->count = 1;
+	}
+
+	entry->isActive = true;
+	entry->index = it->second->Size() - 1;
+	entry->type = type;
+
+	ComponentHandle handle = Handle(index, entry->count);
+	compo->handle = handle;
+
+	return handle;
+}
+
+template<typename T>
+inline void ComponentManager::RegisterComponentList(ICompoList * list)
+{
+	size_t type = typeid(T).hash_code();
+	bool con = compoMap.end() == compoMap.find(type);
+	assert(con && "this type registered already");
+	compoMap[type] = list;
 }

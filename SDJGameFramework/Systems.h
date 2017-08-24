@@ -4,24 +4,16 @@
 
 struct Message;
 
-class Graphic
+struct BaseSystem
 {
-public:
-	Graphic() :
-		hWnd{ 0 },
-		hdc{ 0 },
-		bitmap{ 0 }
-	{}
-	virtual ~Graphic();
+	virtual void Init() {};
+};
 
-	void Init(HWND hWnd, HDC& memDC);
-	void Update();
+struct RenderSystem : public BaseSystem
+{
+	virtual void Init();
 
-private:
-	HWND hWnd;
-	HDC hdc;
-	HBITMAP bitmap;
-
-	CompoList<EllipseComponent> ellipseList;
-	CompoList<PolygonComponent> polygonList;
+	CompoList<ShapeCompo> shapesList;
+	
+	void Render();	// Shape들의 데이터를 이용해서 화면에 렌더링
 };

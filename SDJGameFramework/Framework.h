@@ -6,18 +6,13 @@
 #include "Action.h"
 #include "ActionList.h"
 
-class Framework
+struct Framework
 {
-public:
-	void Init(HWND hwnd, HINSTANCE hinstance, HDC& memDC);
+	void Init();
 	void Update(double time);
+	void Render();
 	void MainLoop();
 
-private:
 	std::chrono::system_clock::time_point prevTimePoint;
-
-	HWND hWnd;
-	HINSTANCE hInst;
-
-	Graphic graphic;
+	RenderSystem render;
 };
