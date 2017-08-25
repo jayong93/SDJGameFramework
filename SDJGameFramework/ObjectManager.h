@@ -19,6 +19,7 @@ public:
 	Object* GetByName(const char* name);
 	void Delete(const ObjectHandle & handle);
 	size_t Size() const { return objectList.size(); }
+	void Clear();
 
 private:
 	ObjectManager() {}

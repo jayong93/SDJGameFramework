@@ -5,7 +5,8 @@
 ObjectHandle ObjectManager::Add(const char* name, float x, float y, float z)
 {
 	bool con = objectNameMap.find(name) == objectNameMap.end();
-	assert(con && "the name already exists");
+	if (!con)
+		return ObjectHandle();
 
 	objectList.emplace_back();
 
@@ -73,10 +74,13 @@ Object * ObjectManager::GetByName(const char * name)
 void ObjectManager::Delete(const ObjectHandle & handle)
 {
 	bool con = handleList.size() > handle.index;
-	assert(con && "invalid index");
+	if (!con) return;
+
+	HandleEntry& entry = handleList[handle.index];
+	if (entry.isActive == false || entry.count != handle.count)
+		return;
 
 	freeIndexQueue.emplace_back(handle.index);
-	HandleEntry& entry = handleList[handle.index];
 	entry.isActive = false;
 
 	objectNameMap.erase(objectList[entry.index].name);
@@ -87,6 +91,15 @@ void ObjectManager::Delete(const ObjectHandle & handle)
 		lastEntry.index = entry.index;
 
 		std::swap(objectList[entry.index], objectList.back());
-		objectList.pop_back();
 	}
+
+	objectList.pop_back();
+}
+
+void ObjectManager::Clear()
+{
+	this->handleList.clear();
+	this->freeIndexQueue.clear();
+	this->objectList.clear();
+	this->objectNameMap.clear();
 }

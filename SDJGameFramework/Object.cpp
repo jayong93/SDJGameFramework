@@ -4,10 +4,13 @@
 
 void Object::AddComponent(ComponentHandle handle)
 {
+	Component* compo = CM.Get(handle);
+	if (compo == nullptr) return;
+	if (compo->owner) return;
+
 	compoList.emplace_back(handle);
 	compoIdxMap.emplace(handle, compoList.size() - 1);
 	
-	Component* compo = CM.Get(handle);
 	compo->owner = this->handle;
 }
 

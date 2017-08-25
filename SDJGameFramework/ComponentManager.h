@@ -16,6 +16,7 @@ public:
 	virtual size_t Size() const = 0;
 	virtual ComponentHandle Delete(size_t i) = 0;
 	virtual Component* Add() = 0;
+	virtual void Clear() = 0;
 };
 
 template <class T>
@@ -53,6 +54,11 @@ public:
 		std::swap(arr[i], arr.back());
 		arr.pop_back();
 		return arr[i].handle;
+	}
+
+	virtual void Clear()
+	{
+		arr.clear();
 	}
 
 	virtual Component* Add()
@@ -95,9 +101,14 @@ public:
 	Component* Get(const ComponentHandle& handle);
 	Component* Get(uint64_t handle);
 	void Detele(const ComponentHandle& handle);
+	void Clear();
+	void ClearAndUnregister();
 
 	template <typename T>
 	ComponentHandle Add();
+
+	template <typename T>
+	size_t Size() const;
 
 	template <typename T>
 	void RegisterComponentList(T& list);
@@ -169,6 +180,18 @@ inline ComponentHandle ComponentManager::Add()
 	compo->handle = handle;
 
 	return handle;
+}
+
+template<typename T>
+inline size_t ComponentManager::Size() const
+{
+	size_t type = GetTypeHash<T>();
+	auto it = compoMap.find(type);
+	if (it != compoMap.end())
+	{
+		return it->second->Size();
+	}
+	return 0;
 }
 
 template<typename T>
