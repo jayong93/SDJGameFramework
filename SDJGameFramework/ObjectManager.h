@@ -18,6 +18,7 @@ public:
 	Object* Get(uint64_t handle);
 	Object* GetByName(const char* name);
 	void Delete(const ObjectHandle & handle);
+	size_t Size() const { return objectList.size(); }
 
 private:
 	ObjectManager() {}

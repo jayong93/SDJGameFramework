@@ -1,6 +1,4 @@
-﻿  Framework.cpp
-c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.h(159): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\framework.cpp(16): note: 컴파일 중인 함수 템플릿 인스턴스화 'ComponentHandle ComponentManager::Add<ShapeCompo>(void)'에 대한 참조를 확인하십시오.
-c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.h(165): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+﻿  TestMain.cpp
+c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\gtest\internal\gtest-internal.h : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
   SDJGameFramework.vcxproj -> C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\SDJGameFramework.exe
   SDJGameFramework.vcxproj -> C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\SDJGameFramework.pdb (Partial PDB)

@@ -2,18 +2,37 @@
 
 #ifdef SDJ_TEST_BUILD
 
+#include "gtest\gtest.h"
+
+#pragma comment(lib, "gtestd.lib")
+
 using namespace std;
 
 #include "Framework.h"
 
-int main()
+int main(int argc, wchar_t* argv[])
 {
-	Framework::Instance().Init();
-	sol::state& lua = Framework::Instance().lua;
-	lua.do_file("test.lua");
-	auto t = lua["t"];
-	cout << t.valid() << endl;
-	//lua.create_named_table("ObjectManager", "GetByName", [](std::string name) {});
+	OM.Add("test");
+	OM.Add("Test");
+	OM.Add("tEST");
+
+	::testing::InitGoogleTest(&argc, argv);
+
+	return RUN_ALL_TESTS();
+	//auto pfr = lua.safe_script_file("test.lua", [](lua_State* state, sol::protected_function_result pfr) {return pfr; });
+	//if (!pfr.valid())
+	//{
+	//	cout << pfr.get<string>() << endl;
+	//}
+}
+
+TEST(ObjectTest, ObjectManagerAdd)
+{
+	ObjectHandle aaaHandle = OM.Add("aaa");
+	EXPECT_TRUE(OM.Size() == 4);
+
+	ObjectHandle namedHandle = OM.GetByName("aaa")->handle;
+	EXPECT_TRUE(aaaHandle == namedHandle);
 }
 
 #endif
