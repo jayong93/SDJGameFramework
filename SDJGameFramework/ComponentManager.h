@@ -2,12 +2,9 @@
 
 #include "Component.h"
 #include "ComponentType.h"
+#include "Util.h"
 
 #define CM ComponentManager::Instance()
-// #define RegisterComponent(list) \
-//	ComponentManager::Instance().RegisterComponentList((typeid(decltype(list)::CompoType)).hash_code(), &(list))
-// #define AddComponent(CType, OHandle) \
-//	ComponentManager::Instance().Add((typeid(CType)).hash_code(), OHandle)
 
 class ICompoList
 {
@@ -96,13 +93,14 @@ public:
 	T* GetBy(const ComponentHandle& handle);
 
 	Component* Get(const ComponentHandle& handle);
+	Component* Get(uint64_t handle);
 	void Detele(const ComponentHandle& handle);
 
 	template <typename T>
 	ComponentHandle Add();
 
 	template <typename T>
-	void RegisterComponentList(ICompoList* list);
+	void RegisterComponentList(T& list);
 
 private:
 	ComponentManager() {}
@@ -127,7 +125,7 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 {
 	Component* compo = this->Get(handle);
 
-	if (compo && handleList[handle.index].type != typeid(T).hash_code())
+	if (compo && handleList[handle.index].type != GetTypeHash<T>())
 		return nullptr;
 
 	return (T*)compo;
@@ -136,7 +134,7 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 template<typename T>
 inline ComponentHandle ComponentManager::Add()
 {
-	size_t type = typeid(T).hash_code();
+	size_t type = GetTypeHash<T>();
 	auto it = compoMap.find(type);
 	bool con = it != compoMap.end();
 	assert(con && "unregistered type");
@@ -174,10 +172,10 @@ inline ComponentHandle ComponentManager::Add()
 }
 
 template<typename T>
-inline void ComponentManager::RegisterComponentList(ICompoList * list)
+inline void ComponentManager::RegisterComponentList(T& list)
 {
-	size_t type = typeid(T).hash_code();
+	size_t type = GetTypeHash<T::CompoType>();
 	bool con = compoMap.end() == compoMap.find(type);
 	assert(con && "this type registered already");
-	compoMap[type] = list;
+	compoMap[type] = &list;
 }

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ObjectManager.h"
+#include "Framework.h"
 
 ObjectHandle ObjectManager::Add(const char* name, float x, float y, float z)
 {
@@ -54,6 +55,11 @@ Object * ObjectManager::Get(const ObjectHandle & handle)
 		return nullptr;
 
 	return &objectList[entry.index];
+}
+
+Object * ObjectManager::Get(uint64_t handle)
+{
+	return Get(Handle::ToHandle(handle));
 }
 
 Object * ObjectManager::GetByName(const char * name)

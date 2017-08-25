@@ -2,7 +2,7 @@
 
 struct Vector3D
 {
-	Vector3D(float x = 0, float y = 0, float z = 0) :
+	Vector3D(double x = 0, double y = 0, double z = 0) :
 		x{ x },
 		y{ y },
 		z{ z }
@@ -12,12 +12,12 @@ struct Vector3D
 	{
 		struct
 		{
-			float x, y, z;
+			double x, y, z;
 		};
-		float data[3];
+		double data[3];
 	};
 
-	void Set(float x, float y, float z)
+	void Set(double x, double y, double z)
 	{
 		this->x = x; this->y = y; this->z = z;
 	}
@@ -33,5 +33,5 @@ struct Vector3D
 		return *this;
 	}
 
-	operator float*() { return data; }
+	operator double*() { return data; }
 };

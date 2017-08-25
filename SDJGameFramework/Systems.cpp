@@ -6,7 +6,7 @@ using namespace std;
 
 void RenderSystem::Init()
 {
-	CM.RegisterComponentList<ShapeCompo>(&this->shapesList);
+	CM.RegisterComponentList(this->shapesList);
 }
 
 void RenderSystem::Render()

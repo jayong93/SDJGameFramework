@@ -1,19 +1,6 @@
-﻿  TestMain.cpp
-  코드를 생성하고 있습니다...
-  컴파일하고 있습니다...
-  ComponentManager.cpp
-c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.cpp(59): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.cpp(65): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  코드를 생성하고 있습니다...
-UnitTest++.lib(CurrentTest.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(CurrentTest.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(MemoryOutStream.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(MemoryOutStream.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(Test.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(Test.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestDetails.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestDetails.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestList.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestList.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestReporter.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestReporter.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestReporterStdout.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestReporterStdout.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestResults.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestResults.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TestRunner.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TestRunner.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
-UnitTest++.lib(TimeHelpers.obj) : warning LNK4099: 'UnitTest++.pdb' PDB를 'UnitTest++.lib(TimeHelpers.obj)' 또는 'C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\UnitTest++.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+﻿  Framework.cpp
+c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.h(159): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\framework.cpp(16): note: 컴파일 중인 함수 템플릿 인스턴스화 'ComponentHandle ComponentManager::Add<ShapeCompo>(void)'에 대한 참조를 확인하십시오.
+c:\users\jayon\documents\visual studio 2017\projects\sdjgameframework\sdjgameframework\componentmanager.h(165): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   SDJGameFramework.vcxproj -> C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\SDJGameFramework.exe
   SDJGameFramework.vcxproj -> C:\Users\jayon\documents\visual studio 2017\Projects\SDJGameFramework\x64\Test\SDJGameFramework.pdb (Partial PDB)

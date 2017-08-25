@@ -13,7 +13,6 @@ void Reshape(int w, int h);
 
 int main()
 {
-	sol::state lua;
 	framework.Init();
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	glutInitWindowSize(1280, 720);
@@ -24,8 +23,6 @@ int main()
 	glutIdleFunc(Update);
 	glutMainLoop();
 }
-
-#endif
 
 void DrawScene()
 {
@@ -42,3 +39,5 @@ void Reshape(int w, int h)
 	glViewport(0, 0, w, h);
 	glOrtho(-10., 10., -10., 10., -1., 1.);
 }
+
+#endif

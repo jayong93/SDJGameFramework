@@ -10,10 +10,12 @@ struct Handle
 	bool operator==(const Handle& h) { return (index == h.index) && (count == h.count); }
 
 	operator bool() const { return (count != 0); }
-	operator uint64_t() const { return uint64_t(index) << 24 | (0xffffff & count); }
+	operator uint64_t() const { return uint64_t(index) << 24 | count; }
 
 	unsigned index;
-	unsigned count;
+	unsigned count : 24;
+
+	static Handle ToHandle(uint64_t h) { return Handle(h >> 24, h); }
 };
 
 using ObjectHandle = Handle;
