@@ -33,5 +33,10 @@ struct Vector3D
 		return *this;
 	}
 
+	bool operator==(const Vector3D& v) const
+	{
+		return (x == v.x && y == v.y && z == v.z);
+	}
+
 	operator double*() { return data; }
 };

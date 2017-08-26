@@ -84,7 +84,7 @@ TEST_F(ObjectTestFixture, Delete)
 	OM.Delete(hObj2);
 	EXPECT_EQ(OM.Get(hObj2), nullptr);
 	EXPECT_EQ(OM.GetByName("obj2"), nullptr);
-	
+
 	EXPECT_NE(OM.GetByName("obj1"), nullptr);
 	EXPECT_NE(OM.GetByName("obj3"), nullptr);
 	EXPECT_TRUE(OM.GetByName("obj1")->handle == hObj1);
@@ -143,7 +143,7 @@ TEST_F(ObjectTestFixture, DelComponent)
 	obj->DelComponent(compo);
 	EXPECT_TRUE(obj->compoIdxMap.find(compo) == obj->compoIdxMap.end());
 	EXPECT_TRUE(obj->compoList[0] == compo2);
-	
+
 	obj->DelComponent(compo2);
 	EXPECT_TRUE(obj->compoList.size() == 0 && obj->compoIdxMap.size() == 0);
 
@@ -174,7 +174,7 @@ struct ComponentTestFixture : testing::Test
 	void SetUp()
 	{
 		CM.RegisterComponentList(shapeList);
-		for (int i = 0; i < sizeof(hCompo)/sizeof(ComponentHandle); ++i)
+		for (int i = 0; i < sizeof(hCompo) / sizeof(ComponentHandle); ++i)
 		{
 			hCompo[i] = CM.Add<ShapeCompo>();
 		}
@@ -212,6 +212,63 @@ TEST_F(ComponentTestFixture, ReuseFreeIndex)
 	EXPECT_TRUE(hCompo[1].index == newCompo.index && hCompo[1].count != newCompo.count);
 	EXPECT_TRUE(newCompo.count == 2);
 	EXPECT_TRUE(CM.Get(newCompo) != nullptr);
+}
+
+struct LuaTestFixture : public testing::Test
+{
+	sol::state lua;
+	CompoList<ShapeCompo> shapeList;
+	ObjectHandle obj1, obj2;
+	function<sol::protected_function_result(lua_State*, sol::protected_function_result)> errFn;
+
+	void SetUp()
+	{
+		errFn = [](lua_State* state, sol::protected_function_result pfr) {
+			if (!pfr.valid())
+				cout << pfr.get<string>() << endl;
+			return pfr;
+		};
+		LuaStateInitialize(lua);
+		CM.RegisterComponentList(shapeList);
+		obj1 = OM.Add("obj1");
+		obj2 = OM.Add("obj2");
+		OM.Get(obj1)->AddComponent(CM.Add<ShapeCompo>());
+		OM.Get(obj2)->AddComponent(CM.Add<ShapeCompo>());
+	}
+
+	void TearDown()
+	{
+		OM.Clear();
+		CM.ClearAndUnregister();
+	}
+};
+
+TEST_F(LuaTestFixture, ControlObject)
+{
+	lua.safe_script(R"(
+obj1 = GetObject("obj1")
+obj1:MoveTo(3,4,5)
+	)", errFn
+	);
+
+	// GetObject 테스트
+	uint64_t hObj1 = lua["obj1"]["handle"];
+	EXPECT_TRUE(hObj1 == uint64_t(obj1));
+
+	// MoveTo 테스트
+	auto obj1Ptr = OM.Get(obj1);
+	EXPECT_TRUE(obj1Ptr->position == Vector3D(3, 4, 5));
+
+	// Move 테스트
+	lua.safe_script(R"(obj1:Move(1,0,1))", errFn);
+	EXPECT_TRUE(obj1Ptr->position == Vector3D(4, 4, 6));
+
+	// Position 테스트
+	double x, y, z;
+	sol::tie(x,y,z) = lua["obj1"]["Position"](lua["obj1"]);
+	EXPECT_TRUE(x == 4.);
+	EXPECT_TRUE(y == 4.);
+	EXPECT_TRUE(z == 6.);
 }
 
 #endif

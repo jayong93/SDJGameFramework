@@ -15,7 +15,6 @@ struct Framework
 	}
 
 	void Init();
-	void InitLuaFunc();
 	void Update(double time);
 	void Render();
 	void MainLoop();
@@ -25,6 +24,6 @@ struct Framework
 	RenderSystem render;
 
 private:
-	Framework() {}
+	Framework() { LuaStateInitialize(lua); }
 	~Framework() {}
 };

@@ -13,3 +13,5 @@ inline size_t GetTypeHash()
 	std::string subName = typeName.substr(pos+1);
 	return GetHash(subName);
 }
+
+void LuaStateInitialize(sol::state_view& lua);
