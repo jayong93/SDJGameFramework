@@ -28,14 +28,14 @@ void ComponentManager::Detele(const ComponentHandle & handle)
 	if (entry.isActive == false || entry.count != handle.count)
 		return;
 
-	freeIndexQueue.emplace_back(handle.index);
-	entry.isActive = false;
-
 	ICompoList* list = compoMap.at(entry.type);
 
 	Object* owner = OM.Get(list->Get(entry.index)->owner);
 	if (owner)
 		owner->DelComponent(handle);
+
+	freeIndexQueue.emplace_back(handle.index);
+	entry.isActive = false;
 
 	ComponentHandle lastHandle = list->Delete(entry.index);
 
@@ -61,4 +61,16 @@ void ComponentManager::ClearAndUnregister()
 {
 	Clear();
 	compoMap.clear();
+}
+
+size_t ComponentManager::Type(const ComponentHandle& handle) const
+{
+	if (handle.index >= handleList.size())
+		return 0;
+
+	const HandleEntry& entry = handleList[handle.index];
+	if (entry.isActive == false || entry.count != handle.count)
+		return 0;
+
+	return entry.type;
 }

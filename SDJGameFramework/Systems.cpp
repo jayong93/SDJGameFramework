@@ -19,11 +19,11 @@ void RenderSystem::Render()
 		glPushMatrix();
 		{
 			glTranslatef(owner->position.x, owner->position.y, owner->position.z);
-			if (s.shapeType == ShapeCompo::CUBE)
+			if (s.shapeType == Shape::CUBE)
 			{
 				glutWireCube(s.drawParam[0]);
 			}
-			else if (s.shapeType == ShapeCompo::SPHERE)
+			else if (s.shapeType == Shape::SPHERE)
 			{
 				glutWireSphere(s.drawParam[0], s.drawParam[1], s.drawParam[2]);
 			}

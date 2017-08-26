@@ -10,7 +10,14 @@ void Object::AddComponent(ComponentHandle handle)
 
 	compoList.emplace_back(handle);
 	compoIdxMap.emplace(handle, compoList.size() - 1);
-	
+
+	auto type = CM.Type(handle);
+	auto it = compoTypeMap.find(type);
+	if (it == compoTypeMap.end())
+		compoTypeMap.emplace(type, 1);
+	else
+		++it->second;
+
 	compo->owner = this->handle;
 }
 
@@ -21,14 +28,29 @@ bool Object::DelComponent(ComponentHandle handle)
 	{
 		size_t prevIndex = it->second;
 		ComponentHandle& lastCompo = compoList.back();
-		
+
 		compoIdxMap[lastCompo] = prevIndex;
 		std::swap(lastCompo, compoList[it->second]);
-		
+
 		compoList.pop_back();
 		compoIdxMap.erase(it);
 
+		auto it2 = compoTypeMap.find(CM.Type(handle));
+		if (it2->second <= 1)
+			compoTypeMap.erase(it2);
+		else
+			--it2->second;
+
 		return true;
 	}
+	return false;
+}
+
+bool Object::HasComponent(std::string type)
+{
+	auto numType = GetHash(type);
+	auto it = compoTypeMap.find(numType);
+	if (it != compoTypeMap.end() && it->second > 0)
+		return true;
 	return false;
 }

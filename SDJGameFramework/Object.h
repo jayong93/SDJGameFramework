@@ -17,10 +17,12 @@ struct Object
 	ObjectHandle handle;
 	std::vector<ComponentHandle> compoList;
 	std::map<uint64_t, size_t> compoIdxMap;
+	std::map<size_t, unsigned> compoTypeMap;
 	std::string name;
 
 	Vector3D position;
 
 	void AddComponent(ComponentHandle handle);
 	bool DelComponent(ComponentHandle handle);
+	bool HasComponent(std::string type);
 };

@@ -13,7 +13,7 @@ struct RenderSystem : public BaseSystem
 {
 	virtual void Init();
 
-	CompoList<ShapeCompo> shapesList;
+	CompoList<Shape> shapesList;
 	
 	void Render();	// Shape들의 데이터를 이용해서 화면에 렌더링
 };

@@ -47,6 +47,14 @@ static void LuaObjectInitialize(sol::state_view& lua)
 			p[i] = sol::make_object(lua, pos.data[i]);
 		return std::make_tuple(p[0], p[1], p[2]);
 	};
+	objectMt["Has"] = [&](sol::table self, std::string type) {
+		Object* obj = OM.Get(selfCheck(self));
+		if (obj)
+		{
+			return obj->HasComponent(type);
+		}
+		return false;
+	};
 	lua["GetObject"] = [&](std::string name) {
 		auto obj = lua.create_table_with("handle", uint64_t(OM.GetByName(name.c_str())->handle));
 		obj[sol::metatable_key] = lua["OMT"];

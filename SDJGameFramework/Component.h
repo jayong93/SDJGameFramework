@@ -20,9 +20,9 @@ struct Component
 	ComponentHandle handle;
 };
 
-struct ShapeCompo : public Component
+struct Shape : public Component
 {
-	virtual ~ShapeCompo() {}
+	virtual ~Shape() {}
 
 	enum {NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT} shapeType;
 	double drawParam[4] = { 0.f, 0.f, 0.f, 0.f };

@@ -103,6 +103,7 @@ public:
 	void Detele(const ComponentHandle& handle);
 	void Clear();
 	void ClearAndUnregister();
+	size_t Type(const ComponentHandle& handle) const;
 
 	template <typename T>
 	ComponentHandle Add();
