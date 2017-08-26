@@ -20,9 +20,10 @@
 *.out
 *.app
 
-*.pdb
-*.idb
-.vs/*
 *.log
 *.tlog
 *.ilk
+*.pdb
+*.idb
+.vs/*
+
