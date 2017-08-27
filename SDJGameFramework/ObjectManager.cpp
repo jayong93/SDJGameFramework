@@ -2,6 +2,11 @@
 #include "ObjectManager.h"
 #include "Framework.h"
 
+ObjectHandle ObjectManager::Add(const std::string & name, const Vector3D & pos)
+{
+	return Add(name, pos.x, pos.y, pos.z);
+}
+
 ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float z)
 {
 	bool con = objectNameMap.find(name) == objectNameMap.end();

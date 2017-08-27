@@ -1,10 +1,10 @@
 {
     "object":
     [
-        {"name":"obj1", "component":["plus"], "position":[1,1,0]},
-        {"name":"obj2", "component":["plus"], "position":[1,2,0]},
-        {"name":"obj3", "component":["plus"], "position":[3,1,0]},
-        {"name":"obj4", "component":["plus"], "position":[1,4,0]}
+        {"name":"obj1", "component":["Plus"], "position":[1,1,0]},
+        {"name":"obj2", "component":["Plus"], "position":[1,2,0]},
+        {"name":"obj3", "component":["Plus"], "position":[3,1,0]},
+        {"name":"obj4", "component":["Plus"], "position":[1,4,0]}
     ],
-    "component":["plus"]
+    "component":["Plus"]
 }

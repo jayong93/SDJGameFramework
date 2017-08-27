@@ -34,7 +34,7 @@ void Framework::MainLoop()
 		Update(timeElapsed);
 		glutPostRedisplay();
 	}
-	else if(timeElapsed < limitedTime - 0.005)
+	else if (timeElapsed < limitedTime - 0.005)
 		lua.collect_garbage();
 }
 
@@ -68,21 +68,33 @@ void Framework::LoadScene(const std::string & fileName)
 			std::ifstream compoScript{ fullName };
 			if (compoScript.bad()) continue;
 
-			sol::environment env{ lua, sol::create, lua.globals() };
-			sol::protected_function fn = lua.load_file(fullName);
+			
+			sol::protected_function fn = lua.load(R"(function Update(time)
+    local owner = Object.Get(owner)
+    owner:Move(0,0,-2)
+end)");
 			if (!fn.valid()) continue;
-			env.set_on(fn);
 			lua["Component"]["prototype"][compoName] = fn;
 		}
 	}
 
 	// Object ÃÊ±âÈ­
 	auto& objs = doc["object"];
-	if (objs.IsArray())
+	for (auto& o : objs.GetArray())
 	{
-		for (auto& o : objs.GetArray())
+		auto& data = o.GetObject();
+
+		auto& posData = data["position"].GetArray();
+		Vector3D pos;
+		for (int i = 0; i < 3; ++i)
+			pos.data[i] = posData[i].GetDouble();
+
+		auto hObj = OM.Add(data["name"].GetString(), pos);
+		
+		auto& compoList = data["component"].GetArray();
+		for (auto& c : compoList)
 		{
-			
+			CM.AddLuaComponent(c.GetString(), hObj);
 		}
 	}
 }

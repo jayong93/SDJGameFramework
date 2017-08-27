@@ -195,7 +195,7 @@ struct ComponentTestFixture : testing::Test
 		for (int i = 0; i < sizeof(hCompo) / sizeof(ComponentHandle); ++i)
 		{
 			std::string objName{ "obj" };
-			objName += i + 1;
+			objName += '0' + i + 1;
 			hObj[i] = OM.Add(objName);
 			hCompo[i] = CM.Add<Shape>(hObj[i]);
 		}
@@ -215,14 +215,14 @@ TEST_F(ComponentTestFixture, Delete)
 	auto obj = OM.Get(objHandle);
 
 	obj->AddComponent(hCompo[1]);
-	CM.Detele(hCompo[1]);
-	CM.Detele(Handle());
+	CM.Delete(hCompo[1]);
+	CM.Delete(Handle());
 	EXPECT_TRUE(obj->compoList.size() == 0);
 	EXPECT_TRUE(CM.Get(hCompo[0]) != nullptr);
 	EXPECT_TRUE(CM.Get(hCompo[2]) != nullptr);
 
-	CM.Detele(hCompo[0]);
-	CM.Detele(hCompo[2]);
+	CM.Delete(hCompo[0]);
+	CM.Delete(hCompo[2]);
 	EXPECT_TRUE(CM.Size<Shape>() == 0);
 }
 
@@ -322,10 +322,7 @@ Object.GetObject("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
 
 struct MainFrameworkTestFixture : public testing::Test
 {
-	sol::state& lua;
-	sol::environment& env;
-
-	MainFrameworkTestFixture() : lua{ FW.lua }, env{ FW.luaEnv }
+	MainFrameworkTestFixture()
 	{
 		FW.Init();
 	}
@@ -345,7 +342,7 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 	for (int i = 0; i < 4; ++i)
 	{
 		string base{ "obj" };
-		base += i + 1;
+		base += '1' + i;
 		objArr[i] = OM.GetByName(base);
 		ASSERT_TRUE(objArr[i]);
 	}
@@ -356,10 +353,16 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
 	}
 
-	auto& compoTable = lua["Component"].get<sol::table>();
+	auto& compoTable = FW.lua["Component"].get<sol::table>();
 	ASSERT_TRUE(compoTable);
-	auto& instances = lua["Component"]["instance"].get<sol::table>();
+	auto& instances = FW.lua["Component"]["instance"].get<sol::table>();
 	ASSERT_TRUE(instances);
+
+	for (auto& i : instances)
+	{
+		cout << i.first.as<string>() << ", " << i.second.as<string>() << endl;
+	}
+
 	EXPECT_TRUE(instances.size() == 4);
 
 	FW.MainLoop();

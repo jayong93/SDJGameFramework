@@ -101,31 +101,39 @@ public:
 
 	Component* Get(const ComponentHandle& handle);
 	Component* Get(uint64_t handle);
-	void Detele(const ComponentHandle& handle);
+	void Delete(const ComponentHandle& handle);
 	void Clear();
 	void ClearAndUnregister();
 	size_t Type(const ComponentHandle& handle) const;
 
 	template <typename T>
 	ComponentHandle Add(const ObjectHandle& owner);
-	ComponentHandle Add(size_t type, const ObjectHandle& owner);
+	ComponentHandle Add(const std::string& type, const ObjectHandle& owner) { return Add_(GetHash(type), owner); }
+	ComponentHandle AddLuaComponent(size_t type, const std::string& scriptName, const ObjectHandle& owner);
+	ComponentHandle AddLuaComponent(const std::string& scriptName, const ObjectHandle& owner) { return AddLuaComponent(GetHash(scriptName), scriptName, owner); }
 
 	template <typename T>
 	size_t Size() const;
 
 	template <typename T>
 	void RegisterComponentList(T& list);
+	template <typename T>
+	bool IsRegistered() { return IsRegistered(GetTypeHash<T>()); }
+	bool IsRegistered(const std::string& type) { return IsRegistered(GetHash(type)); }
+	bool IsRegistered(size_t type) { return compoMap.find(type) != compoMap.end(); }
 
 private:
 	ComponentManager() {}
 	~ComponentManager() {}
-	ComponentHandle AddComponent(size_t type, ICompoList* list, const ObjectHandle& owner);
+	ComponentHandle Add_(size_t type, const ObjectHandle& owner);
+	ComponentHandle Add_(size_t type, size_t realType, ICompoList* list, const ObjectHandle& owner);
 
 	std::map<size_t, ICompoList*> compoMap;
 
 	struct HandleEntry
 	{
 		size_t type = 0;
+		size_t realType = 0;
 		unsigned count = 0;
 		unsigned index = 0;
 		bool isActive = false;
@@ -149,7 +157,7 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 template<typename T>
 inline ComponentHandle ComponentManager::Add(const ObjectHandle& owner)
 {
-	return Add(GetTypeHash<T>(), owner);
+	return Add_(GetTypeHash<T>(), owner);
 }
 
 template<typename T>
@@ -168,8 +176,8 @@ template<typename T>
 inline void ComponentManager::RegisterComponentList(T& list)
 {
 	size_t type = GetTypeHash<T::CompoType>();
-	bool con = compoMap.end() == compoMap.find(type);
-	assert(con && "this type registered already");
+	bool con = IsRegistered(type);
+	assert(!con && "this type registered already");
 	compoMap[type] = &list;
 	MessageManager::Instance().RegisterComponentMessageMap(type, T::CompoType::InitMsgMap());
 }

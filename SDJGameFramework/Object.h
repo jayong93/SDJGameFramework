@@ -3,6 +3,7 @@
 #include "Vector3D.h"
 #include "Handles.h"
 #include "Util.h"
+#include "Component.h"
 
 /*
 게임에서 다뤄지는 최소 객체
@@ -30,6 +31,9 @@ struct Object
 	bool HasComponent() const;
 
 	void SendMsg(sol::object msg);
+
+private:
+	bool AddComponent_(ComponentHandle handle, Component* compo, size_t type);
 };
 
 template<typename T>

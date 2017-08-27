@@ -19,7 +19,7 @@ Component * ComponentManager::Get(uint64_t handle)
 	return Get(Handle::ToHandle(handle));
 }
 
-void ComponentManager::Detele(const ComponentHandle & handle)
+void ComponentManager::Delete(const ComponentHandle & handle)
 {
 	bool con = handleList.size() > handle.index;
 	if (!con) return;
@@ -69,10 +69,28 @@ size_t ComponentManager::Type(const ComponentHandle& handle) const
 	if (entry.isActive == false || entry.count != handle.count)
 		return 0;
 
-	return entry.type;
+	return entry.realType;
 }
 
-ComponentHandle ComponentManager::Add(size_t type, const ObjectHandle & owner)
+ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string & scriptName, const ObjectHandle & owner)
+{
+	auto obj = OM.Get(owner);
+	if (obj->HasComponent(type))
+		return ComponentHandle();
+
+	size_t luaType = GetTypeHash<LuaComponent>();
+	auto handle = Add_(luaType, type, compoMap[luaType], owner);
+	auto compo = GetBy<LuaComponent>(handle);
+	bool ret = compo->SetScript(scriptName);
+	if (!ret)
+	{
+		OM.Get(compo->owner)->DelComponent(handle);
+		return ComponentHandle();
+	}
+	return handle;
+}
+
+ComponentHandle ComponentManager::Add_(size_t type, const ObjectHandle & owner)
 {
 	auto it = compoMap.find(type);
 	bool con = it != compoMap.end();
@@ -82,10 +100,10 @@ ComponentHandle ComponentManager::Add(size_t type, const ObjectHandle & owner)
 	if (obj->HasComponent(type))
 		return ComponentHandle();
 
-	return AddComponent(type, it->second, owner);
+	return Add_(type, type, it->second, owner);
 }
 
-ComponentHandle ComponentManager::AddComponent(size_t type, ICompoList * list, const ObjectHandle & owner)
+ComponentHandle ComponentManager::Add_(size_t type, size_t realType, ICompoList * list, const ObjectHandle & owner)
 {
 	Component* compo = list->Add();
 
@@ -112,6 +130,7 @@ ComponentHandle ComponentManager::AddComponent(size_t type, ICompoList * list, c
 	entry->isActive = true;
 	entry->index = list->Size() - 1;
 	entry->type = type;
+	entry->realType = realType;
 
 	ComponentHandle handle = Handle(index, entry->count);
 	compo->handle = handle;

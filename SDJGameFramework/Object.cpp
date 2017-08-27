@@ -9,12 +9,16 @@ bool Object::AddComponent(ComponentHandle handle)
 	if (compo == nullptr) return false;
 	if (compo->owner) return false;
 
-	auto type = CM.Type(handle);
+	return AddComponent_(handle, compo, CM.Type(handle));
+}
+
+bool Object::AddComponent_(ComponentHandle handle, Component* compo, size_t type)
+{
 	auto it = compoTypeSet.find(type);
 	if (it == compoTypeSet.end())
 		compoTypeSet.emplace(type);
 	else return false;
-	
+
 	compoList.emplace_back(handle);
 	compoIdxMap.emplace(handle, compoList.size() - 1);
 	compo->owner = this->handle;
@@ -40,7 +44,7 @@ bool Object::DelComponent(ComponentHandle handle)
 		if (it2 != compoTypeSet.end())
 			compoTypeSet.erase(it2);
 
-		CM.Detele(handle);
+		CM.Delete(handle);
 
 		return true;
 	}
