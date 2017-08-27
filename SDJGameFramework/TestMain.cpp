@@ -15,11 +15,6 @@ int main(int argc, wchar_t* argv[])
 	::testing::InitGoogleTest(&argc, argv);
 
 	return RUN_ALL_TESTS();
-	//auto pfr = lua.safe_script_file("test.lua", [](lua_State* state, sol::protected_function_result pfr) {return pfr; });
-	//if (!pfr.valid())
-	//{
-	//	cout << pfr.get<string>() << endl;
-	//}
 }
 
 TEST(HandleTest, UsingNumberAsHandle)
@@ -113,13 +108,12 @@ TEST_F(ObjectTestFixture, AddComponent)
 {
 	CompoList<Shape> sList;
 	CM.RegisterComponentList(sList);
-	auto compo = CM.Add<Shape>();
 
 	auto obj = OM.Get(hObj1);
 	obj->AddComponent(Handle());
 	EXPECT_TRUE(obj->compoList.size() == 0 && obj->compoIdxMap.size() == 0);
 
-	obj->AddComponent(compo);
+	auto compo = CM.Add<Shape>(hObj1);
 	EXPECT_TRUE(obj->compoIdxMap.find(compo) != obj->compoIdxMap.end());
 	EXPECT_TRUE(CM.Get(compo)->owner == hObj1);
 
@@ -134,16 +128,15 @@ TEST_F(ObjectTestFixture, DelComponent)
 {
 	CompoList<Shape> sList;
 	CM.RegisterComponentList(sList);
-	auto compo = CM.Add<Shape>();
-	auto compo2 = CM.Add<Shape>();
 
 	auto obj = OM.Get(hObj1);
-	obj->AddComponent(compo);
-	obj->AddComponent(compo2);
+	auto compo = CM.Add<Shape>(hObj1);
+	auto compo2 = CM.Add<Shape>(hObj2);
 	obj->DelComponent(compo);
 	EXPECT_TRUE(obj->compoIdxMap.find(compo) == obj->compoIdxMap.end());
-	EXPECT_TRUE(obj->compoList[0] == compo2);
+	EXPECT_TRUE(obj->compoList.size() == 0);
 
+	obj = OM.Get(hObj2);
 	obj->DelComponent(compo2);
 	EXPECT_TRUE(obj->compoList.size() == 0 && obj->compoIdxMap.size() == 0);
 
@@ -154,18 +147,19 @@ TEST_F(ObjectTestFixture, HasComponent)
 {
 	CompoList<Shape> sList;
 	CM.RegisterComponentList(sList);
-	auto compo = CM.Add<Shape>();
-	auto compo2 = CM.Add<Shape>();
 
 	auto obj = OM.Get(hObj1);
-	obj->AddComponent(compo);
-	obj->AddComponent(compo2);
+	auto obj2 = OM.Get(hObj2);
+	auto compo = CM.Add<Shape>(hObj1);
+	auto compo2 = CM.Add<Shape>(hObj2);
 
 	EXPECT_TRUE(obj->HasComponent("Shape"));
+	EXPECT_TRUE(obj2->HasComponent("Shape"));
+
 	obj->DelComponent(compo);
-	EXPECT_TRUE(obj->HasComponent("Shape"));
-	obj->DelComponent(compo2);
+	obj2->DelComponent(compo2);
 	EXPECT_FALSE(obj->HasComponent("Shape"));
+	EXPECT_FALSE(obj2->HasComponent("Shape"));
 
 	CM.ClearAndUnregister();
 }
@@ -174,15 +168,18 @@ TEST(ComponentTest, Add)
 {
 	CompoList<Shape> sList;
 	CM.RegisterComponentList(sList);
+	auto obj = OM.Add("test");
+	auto obj2 = OM.Add("test2");
 
-	auto handle = CM.Add<Shape>();
-	auto handle2 = CM.Add<Shape>();
+	auto handle = CM.Add<Shape>(obj);
+	auto handle2 = CM.Add<Shape>(obj2);
 	EXPECT_TRUE(handle.index == 0 && handle.count == 1);
 	EXPECT_TRUE(handle2.index == 1 && handle2.count == 1);
 
 	EXPECT_TRUE(CM.Get(handle)->handle == handle);
 	EXPECT_TRUE(CM.Get(handle2)->handle == handle2);
 
+	OM.Clear();
 	CM.ClearAndUnregister();
 }
 
@@ -190,13 +187,17 @@ struct ComponentTestFixture : testing::Test
 {
 	CompoList<Shape> shapeList;
 	ComponentHandle hCompo[3];
+	ObjectHandle hObj[3];
 
 	void SetUp()
 	{
 		CM.RegisterComponentList(shapeList);
 		for (int i = 0; i < sizeof(hCompo) / sizeof(ComponentHandle); ++i)
 		{
-			hCompo[i] = CM.Add<Shape>();
+			std::string objName{ "obj" };
+			objName += i + 1;
+			hObj[i] = OM.Add(objName);
+			hCompo[i] = CM.Add<Shape>(hObj[i]);
 		}
 
 	}
@@ -227,8 +228,8 @@ TEST_F(ComponentTestFixture, Delete)
 
 TEST_F(ComponentTestFixture, ReuseFreeIndex)
 {
-	CM.Detele(hCompo[1]);
-	auto newCompo = CM.Add<Shape>();
+	OM.Get(hObj[1])->DelComponent(hCompo[1]);
+	auto newCompo = CM.Add<Shape>(hObj[1]);
 	EXPECT_TRUE(hCompo[1].index == newCompo.index && hCompo[1].count != newCompo.count);
 	EXPECT_TRUE(newCompo.count == 2);
 	EXPECT_TRUE(CM.Get(newCompo) != nullptr);
@@ -258,8 +259,8 @@ struct LuaTestFixture : public testing::Test
 		CM.RegisterComponentList(shapeList);
 		obj1 = OM.Add("obj1");
 		obj2 = OM.Add("obj2");
-		OM.Get(obj1)->AddComponent(CM.Add<Shape>());
-		OM.Get(obj2)->AddComponent(CM.Add<Shape>());
+		CM.Add<Shape>(obj1);
+		CM.Add<Shape>(obj2);
 	}
 
 	void TearDown()
@@ -272,7 +273,7 @@ struct LuaTestFixture : public testing::Test
 TEST_F(LuaTestFixture, ControlObject)
 {
 	lua.safe_script(R"(
-obj1 = GetObject("obj1")
+obj1 = Object.GetObject("obj1")
 obj1:MoveTo(3,4,5)
 	)", errFn
 	);
@@ -291,7 +292,7 @@ obj1:MoveTo(3,4,5)
 
 	// Position Å×½ºÆ®
 	double x, y, z;
-	sol::tie(x,y,z) = lua["obj1"]["Position"](lua["obj1"]);
+	sol::tie(x, y, z) = lua["obj1"]["Position"](lua["obj1"]);
 	EXPECT_TRUE(x == 4.);
 	EXPECT_TRUE(y == 4.);
 	EXPECT_TRUE(z == 6.);
@@ -308,15 +309,66 @@ TEST_F(LuaTestFixture, ControlComponentViaMessage)
 	auto compo2 = CM.GetBy<Shape>(hc2);
 
 	lua.safe_script(R"(
-obj1 = GetObject("obj1")
+obj1 = Object.GetObject("obj1")
 obj1:SendMsg{"CHANGE_SHAPE",type="sphere",radius=5,slice=4,stack=3}
-GetObject("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
+Object.GetObject("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
 )", errFn);
 
 	EXPECT_TRUE(compo1->shapeType == Shape::SPHERE);
 	EXPECT_TRUE(compo2->shapeType == Shape::CUBE);
 	EXPECT_TRUE(compo1->drawParam[0] == 5 && compo1->drawParam[1] == 4 && compo1->drawParam[2] == 3);
 	EXPECT_TRUE(compo2->drawParam[0] == 2);
+}
+
+struct MainFrameworkTestFixture : public testing::Test
+{
+	sol::state& lua;
+	sol::environment& env;
+
+	MainFrameworkTestFixture() : lua{ FW.lua }, env{ FW.luaEnv }
+	{
+		FW.Init();
+	}
+
+	~MainFrameworkTestFixture()
+	{
+		FW.CleanUp();
+	}
+};
+
+TEST_F(MainFrameworkTestFixture, SceneLoading)
+{
+	FW.LoadScene("TestScene.json");
+
+	EXPECT_TRUE(OM.Size() == 4);
+	Object* objArr[4] = { nullptr, nullptr, nullptr, nullptr };
+	for (int i = 0; i < 4; ++i)
+	{
+		string base{ "obj" };
+		base += i + 1;
+		objArr[i] = OM.GetByName(base);
+		ASSERT_TRUE(objArr[i]);
+	}
+
+	Vector3D expectedPos[4] = { {1,1},{1,2},{3,1},{1,4} };
+	for (int i = 0; i < 4; ++i)
+	{
+		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
+	}
+
+	auto& compoTable = lua["Component"].get<sol::table>();
+	ASSERT_TRUE(compoTable);
+	auto& instances = lua["Component"]["instance"].get<sol::table>();
+	ASSERT_TRUE(instances);
+	EXPECT_TRUE(instances.size() == 4);
+
+	FW.MainLoop();
+
+	for (int i = 0; i < 4; ++i)
+	{
+		expectedPos[i].z -= 2;
+		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
+	}
 }
 
 #endif

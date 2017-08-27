@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Util.h"
+#include "ObjectManager.h"
 #include "MessageManager.h"
 
 #define CM ComponentManager::Instance()
@@ -67,12 +68,12 @@ public:
 		return &arr.back();
 	}
 
-	auto begin() const
+	auto begin()
 	{
 		return arr.begin();
 	}
 
-	auto end() const
+	auto end()
 	{
 		return arr.end();
 	}
@@ -106,7 +107,8 @@ public:
 	size_t Type(const ComponentHandle& handle) const;
 
 	template <typename T>
-	ComponentHandle Add();
+	ComponentHandle Add(const ObjectHandle& owner);
+	ComponentHandle Add(size_t type, const ObjectHandle& owner);
 
 	template <typename T>
 	size_t Size() const;
@@ -117,12 +119,13 @@ public:
 private:
 	ComponentManager() {}
 	~ComponentManager() {}
+	ComponentHandle AddComponent(size_t type, ICompoList* list, const ObjectHandle& owner);
+
 	std::map<size_t, ICompoList*> compoMap;
 
 	struct HandleEntry
 	{
 		size_t type = 0;
-		ObjectHandle ownerHandle;
 		unsigned count = 0;
 		unsigned index = 0;
 		bool isActive = false;
@@ -144,43 +147,9 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 }
 
 template<typename T>
-inline ComponentHandle ComponentManager::Add()
+inline ComponentHandle ComponentManager::Add(const ObjectHandle& owner)
 {
-	size_t type = GetTypeHash<T>();
-	auto it = compoMap.find(type);
-	bool con = it != compoMap.end();
-	assert(con && "unregistered type");
-
-	Component* compo = it->second->Add();
-
-	HandleEntry* entry;
-	unsigned index;
-
-	if (!freeIndexQueue.empty())
-	{
-		index = freeIndexQueue.front();
-		freeIndexQueue.pop_front();
-		entry = &handleList[index];
-		++entry->count;
-		if (entry->count == 0)
-			entry->count = 1;
-	}
-	else
-	{
-		handleList.emplace_back();
-		index = handleList.size() - 1;
-		entry = &handleList.back();
-		entry->count = 1;
-	}
-
-	entry->isActive = true;
-	entry->index = it->second->Size() - 1;
-	entry->type = type;
-
-	ComponentHandle handle = Handle(index, entry->count);
-	compo->handle = handle;
-
-	return handle;
+	return Add(GetTypeHash<T>(), owner);
 }
 
 template<typename T>

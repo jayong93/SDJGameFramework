@@ -23,7 +23,7 @@ public:
 	{
 		interestedComponents[msgType].emplace(handle);
 	}
-	void Clear() { componentsMsgMap.clear(); }
+	void Clear() { componentsMsgMap.clear(); interestedComponents.clear(); }
 	const MessageMap* GetMsgMap(size_t type) const
 	{
 		auto it = componentsMsgMap.find(type);

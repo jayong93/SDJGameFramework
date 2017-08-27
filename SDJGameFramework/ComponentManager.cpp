@@ -30,10 +30,6 @@ void ComponentManager::Detele(const ComponentHandle & handle)
 
 	ICompoList* list = compoMap.at(entry.type);
 
-	Object* owner = OM.Get(list->Get(entry.index)->owner);
-	if (owner)
-		owner->DelComponent(handle);
-
 	freeIndexQueue.emplace_back(handle.index);
 	entry.isActive = false;
 
@@ -74,4 +70,53 @@ size_t ComponentManager::Type(const ComponentHandle& handle) const
 		return 0;
 
 	return entry.type;
+}
+
+ComponentHandle ComponentManager::Add(size_t type, const ObjectHandle & owner)
+{
+	auto it = compoMap.find(type);
+	bool con = it != compoMap.end();
+	assert(con && "unregistered type");
+
+	auto obj = OM.Get(owner);
+	if (obj->HasComponent(type))
+		return ComponentHandle();
+
+	return AddComponent(type, it->second, owner);
+}
+
+ComponentHandle ComponentManager::AddComponent(size_t type, ICompoList * list, const ObjectHandle & owner)
+{
+	Component* compo = list->Add();
+
+	HandleEntry* entry;
+	unsigned index;
+
+	if (!freeIndexQueue.empty())
+	{
+		index = freeIndexQueue.front();
+		freeIndexQueue.pop_front();
+		entry = &handleList[index];
+		++entry->count;
+		if (entry->count == 0)
+			entry->count = 1;
+	}
+	else
+	{
+		handleList.emplace_back();
+		index = handleList.size() - 1;
+		entry = &handleList.back();
+		entry->count = 1;
+	}
+
+	entry->isActive = true;
+	entry->index = list->Size() - 1;
+	entry->type = type;
+
+	ComponentHandle handle = Handle(index, entry->count);
+	compo->handle = handle;
+
+	OM.Get(owner)->AddComponent(handle);
+
+	return handle;
 }

@@ -11,7 +11,7 @@ handle - 컴포넌트의 식별자
 */
 struct Component
 {
-	virtual ~Component() {}
+	virtual ~Component() = 0;
 
 	void SendMsg(sol::object& args);
 	static MessageMap InitMsgMap() { return MessageMap(); }
@@ -35,9 +35,10 @@ private:
 	static StringHashMap<unsigned> InitTypeMap();
 };
 
-struct LuaCompo : public Component
+struct LuaComponent : public Component
 {
-	virtual ~LuaCompo() {}
+	virtual ~LuaComponent() {}
+	bool SetScript(const std::string& name);
 
 	std::string scriptName;
 };

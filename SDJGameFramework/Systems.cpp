@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Systems.h"
 #include "HandleManagers.h"
+#include "Framework.h"
 
 using namespace std;
 
@@ -13,22 +14,48 @@ void RenderSystem::Render()
 {
 	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
 	for (auto& s : shapesList)
 	{
 		Object* owner = OM.Get(s.owner);
 		glPushMatrix();
 		{
 			glTranslatef(owner->position.x, owner->position.y, owner->position.z);
-			if (s.shapeType == Shape::CUBE)
+			switch (s.shapeType)
 			{
-				glutWireCube(s.drawParam[0]);
-			}
-			else if (s.shapeType == Shape::SPHERE)
-			{
-				glutWireSphere(s.drawParam[0], s.drawParam[1], s.drawParam[2]);
+				case Shape::CUBE:
+					glutWireCube(s.drawParam[0]);
+					break;
+				case Shape::SPHERE:
+					glutWireSphere(s.drawParam[0], s.drawParam[1], s.drawParam[2]);
+					break;
+				case Shape::CONE:
+					glutWireCone(s.drawParam[0], s.drawParam[1], s.drawParam[2], s.drawParam[3]);
+					break;
+				case Shape::TORUS:
+					glutWireTorus(s.drawParam[0], s.drawParam[1], s.drawParam[2], s.drawParam[3]);
+					break;
+				case Shape::TEAPOT:
+					glutWireTeapot(s.drawParam[0]);
+					break;
 			}
 		}
 		glPopMatrix();
 	}
-	glFlush();
+	glutSwapBuffers();
+}
+
+void GameLogic::Init()
+{
+	CM.RegisterComponentList(this->scriptList);
+}
+
+void GameLogic::Update(double time)
+{
+	auto& lua = FW.lua;
+	auto& compoTable = lua["Component"]["Loop"];
+	if (compoTable)
+	{
+		compoTable(time);
+	}
 }

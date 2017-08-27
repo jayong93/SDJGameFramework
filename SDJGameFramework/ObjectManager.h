@@ -13,10 +13,10 @@ public:
 		return inst;
 	}
 
-	ObjectHandle Add(const char* name, float x = 0.f, float y = 0.f, float z = 0.f);
+	ObjectHandle Add(const std::string& name, float x = 0.f, float y = 0.f, float z = 0.f);
 	Object* Get(const ObjectHandle & handle);
 	Object* Get(uint64_t handle);
-	Object* GetByName(const char* name);
+	Object* GetByName(const std::string& name);
 	void Delete(const ObjectHandle & handle);
 	size_t Size() const { return objectList.size(); }
 	void Clear();

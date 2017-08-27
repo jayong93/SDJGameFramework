@@ -2,7 +2,7 @@
 #include "ObjectManager.h"
 #include "Framework.h"
 
-ObjectHandle ObjectManager::Add(const char* name, float x, float y, float z)
+ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float z)
 {
 	bool con = objectNameMap.find(name) == objectNameMap.end();
 	if (!con)
@@ -63,7 +63,7 @@ Object * ObjectManager::Get(uint64_t handle)
 	return Get(Handle::ToHandle(handle));
 }
 
-Object * ObjectManager::GetByName(const char * name)
+Object * ObjectManager::GetByName(const std::string& name)
 {
 	auto it = objectNameMap.find(name);
 	if (it == objectNameMap.end())

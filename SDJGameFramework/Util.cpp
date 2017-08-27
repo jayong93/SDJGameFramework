@@ -63,15 +63,37 @@ static void LuaObjectInitialize(sol::state_view& lua)
 			}
 		}
 	};
-	lua["GetObject"] = [&, objectMt](std::string name) {
+	lua["Object"]["GetObject"] = [&, objectMt](std::string name) {
 		auto obj = lua.create_table_with("handle", uint64_t(OM.GetByName(name.c_str())->handle));
 		obj[sol::metatable_key] = objectMt;
 		return obj;
 	};
 }
 
+static void LuaComponentInitialize(sol::state_view& lua)
+{
+	auto& compoTable = lua["Component"].get<sol::table>();
+	compoTable.create_named("prototype");
+	compoTable.create_named("instance");
+	lua.safe_script(R"(
+function Component:Loop(time)
+	for i, v in pairs(self.instance) do
+		v.Update(time)
+	end
+end
+)");
+}
+
+static void LuaGlobalInitialize(sol::state_view& lua)
+{
+	lua.create_named_table("Component");
+	lua.create_named_table("Object");
+}
+
 void LuaStateInitialize(sol::state_view& lua)
 {
-	luaL_openlibs(lua);
+	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+	LuaGlobalInitialize(lua);
 	LuaObjectInitialize(lua);
+	LuaComponentInitialize(lua);
 }

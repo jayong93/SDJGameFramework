@@ -1,24 +1,25 @@
 #include "stdafx.h"
 #include "Object.h"
 #include "HandleManagers.h"
+#include "Framework.h"
 
-void Object::AddComponent(ComponentHandle handle)
+bool Object::AddComponent(ComponentHandle handle)
 {
 	Component* compo = CM.Get(handle);
-	if (compo == nullptr) return;
-	if (compo->owner) return;
-
-	compoList.emplace_back(handle);
-	compoIdxMap.emplace(handle, compoList.size() - 1);
+	if (compo == nullptr) return false;
+	if (compo->owner) return false;
 
 	auto type = CM.Type(handle);
-	auto it = compoTypeMap.find(type);
-	if (it == compoTypeMap.end())
-		compoTypeMap.emplace(type, 1);
-	else
-		++it->second;
-
+	auto it = compoTypeSet.find(type);
+	if (it == compoTypeSet.end())
+		compoTypeSet.emplace(type);
+	else return false;
+	
+	compoList.emplace_back(handle);
+	compoIdxMap.emplace(handle, compoList.size() - 1);
 	compo->owner = this->handle;
+
+	return true;
 }
 
 bool Object::DelComponent(ComponentHandle handle)
@@ -35,22 +36,21 @@ bool Object::DelComponent(ComponentHandle handle)
 		compoList.pop_back();
 		compoIdxMap.erase(it);
 
-		auto it2 = compoTypeMap.find(CM.Type(handle));
-		if (it2->second <= 1)
-			compoTypeMap.erase(it2);
-		else
-			--it2->second;
+		auto it2 = compoTypeSet.find(CM.Type(handle));
+		if (it2 != compoTypeSet.end())
+			compoTypeSet.erase(it2);
+
+		CM.Detele(handle);
 
 		return true;
 	}
 	return false;
 }
 
-bool Object::HasComponent(std::string type)
+bool Object::HasComponent(size_t type) const
 {
-	auto numType = GetHash(type);
-	auto it = compoTypeMap.find(numType);
-	if (it != compoTypeMap.end() && it->second > 0)
+	auto it = compoTypeSet.find(type);
+	if (it != compoTypeSet.end())
 		return true;
 	return false;
 }
@@ -64,7 +64,7 @@ void Object::SendMsg(sol::object msg)
 
 	sol::state_view lua(msg.lua_state());
 
-	auto luaCompos = lua["CompoList"][(uint64_t)handle];
+	auto luaCompos = lua["ComponentList"][(uint64_t)handle];
 	if (luaCompos.get_type() == sol::type::table)
 	{
 		auto& table = luaCompos.get<sol::table>();

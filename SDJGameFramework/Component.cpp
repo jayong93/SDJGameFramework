@@ -1,11 +1,12 @@
 #include "stdafx.h"
-#include "Component.h"
-#include "ObjectManager.h"
 #include "ComponentManager.h"
 #include "MessageManager.h"
+#include "Framework.h"
 #include "Util.h"
 
 #define MSG_HANDLER(Component, Table) [](void* Component, sol::table& Table) -> bool
+
+Component::~Component() {}
 
 void Component::SendMsg(sol::object& args) 
 {
@@ -83,4 +84,16 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 	}
 
 	return map;
+}
+
+bool LuaComponent::SetScript(const std::string & name)
+{
+	sol::environment env(FW.lua, sol::create, FW.lua.globals());
+	sol::protected_function script = FW.lua.load_file(name);
+	if (script.valid())
+	{
+		env.set_on(script);
+		FW.lua["Component"]["prototype"][name] = script;
+	}
+	return false;
 }

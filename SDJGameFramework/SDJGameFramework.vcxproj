@@ -217,6 +217,7 @@
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="TestMain.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="typedef.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
@@ -233,12 +234,10 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Action.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="typedef.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vector3D.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="test.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

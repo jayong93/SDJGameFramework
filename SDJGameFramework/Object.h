@@ -2,6 +2,7 @@
 
 #include "Vector3D.h"
 #include "Handles.h"
+#include "Util.h"
 
 /*
 게임에서 다뤄지는 최소 객체
@@ -16,13 +17,23 @@ struct Object
 	ObjectHandle handle;
 	std::vector<ComponentHandle> compoList;
 	std::map<uint64_t, size_t> compoIdxMap;
-	std::map<size_t, unsigned> compoTypeMap;
+	std::set<size_t> compoTypeSet;
 	std::string name;
 
 	Vector3D position;
 
-	void AddComponent(ComponentHandle handle);
+	bool AddComponent(ComponentHandle handle);
 	bool DelComponent(ComponentHandle handle);
-	bool HasComponent(std::string type);
+	bool HasComponent(const std::string& type) const { return HasComponent(GetHash(type)); }
+	bool HasComponent(size_t type) const;
+	template <typename T>
+	bool HasComponent() const;
+
 	void SendMsg(sol::object msg);
 };
+
+template<typename T>
+inline bool Object::HasComponent() const
+{
+	HasComponent(GetTypeHash<T>());
+}

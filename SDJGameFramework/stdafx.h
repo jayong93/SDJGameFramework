@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <deque>
 #include <set>
@@ -16,3 +17,5 @@
 #include <functional>
 #include "sol.hpp"
 #include <glut.h>
+#include "rapidjson\document.h"
+#include "rapidjson\istreamwrapper.h"
