@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Component.h"
-#include "ComponentType.h"
 #include "Util.h"
+#include "MessageManager.h"
 
 #define CM ComponentManager::Instance()
 
@@ -202,4 +202,5 @@ inline void ComponentManager::RegisterComponentList(T& list)
 	bool con = compoMap.end() == compoMap.find(type);
 	assert(con && "this type registered already");
 	compoMap[type] = &list;
+	MessageManager::Instance().RegisterComponentMessageMap(type, T::CompoType::InitMsgMap());
 }

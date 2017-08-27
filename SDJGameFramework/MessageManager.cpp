@@ -2,16 +2,9 @@
 #include "ComponentManager.h"
 #include "MessageManager.h"
 
-void MessageManager::SendMsg(ComponentHandle reciver, Message& msg)
-{
-	CM.Get(reciver)->SendMsg(msg);
-}
 
-void MessageManager::BroadcastMsg(Message & msg)
+
+void MessageManager::BroadcastMsg(sol::object& msg)
 {
-	auto its = interestedReceivers.equal_range(msg.type);
-	for (auto it = its.first; it != its.second; ++it)
-	{
-		CM.Get(it->second)->SendMsg(msg);
-	}
+	
 }

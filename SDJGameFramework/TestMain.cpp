@@ -237,6 +237,7 @@ TEST_F(ComponentTestFixture, ReuseFreeIndex)
 TEST_F(ComponentTestFixture, Type)
 {
 	EXPECT_TRUE(CM.Type(hCompo[1]) == GetHash("Shape"));
+	auto c = CM.GetBy<Shape>(hCompo[1]);
 }
 
 struct LuaTestFixture : public testing::Test
@@ -297,6 +298,25 @@ obj1:MoveTo(3,4,5)
 
 	lua.safe_script(R"(ret = obj1:Has("Shape"))", errFn);
 	EXPECT_TRUE(lua["ret"].get<bool>());
+}
+
+TEST_F(LuaTestFixture, ControlComponentViaMessage)
+{
+	auto hc1 = OM.Get(obj1)->compoList[0];
+	auto hc2 = OM.Get(obj2)->compoList[0];
+	auto compo1 = CM.GetBy<Shape>(hc1);
+	auto compo2 = CM.GetBy<Shape>(hc2);
+
+	lua.safe_script(R"(
+obj1 = GetObject("obj1")
+obj1:SendMsg{"CHANGE_SHAPE",type="sphere",radius=5,slice=4,stack=3}
+GetObject("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
+)", errFn);
+
+	EXPECT_TRUE(compo1->shapeType == Shape::SPHERE);
+	EXPECT_TRUE(compo2->shapeType == Shape::CUBE);
+	EXPECT_TRUE(compo1->drawParam[0] == 5 && compo1->drawParam[1] == 4 && compo1->drawParam[2] == 3);
+	EXPECT_TRUE(compo2->drawParam[0] == 2);
 }
 
 #endif

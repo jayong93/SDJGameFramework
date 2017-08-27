@@ -10,7 +10,7 @@ size_t GetHash(const std::string& str)
 
 static void LuaObjectInitialize(sol::state_view& lua)
 {
-	auto objectMt = lua.create_named_table("OMT");
+	auto objectMt = lua.create_table();
 	objectMt["__index"] = objectMt;
 
 	auto selfCheck = [](sol::table self) -> uint64_t {
@@ -48,17 +48,24 @@ static void LuaObjectInitialize(sol::state_view& lua)
 		return std::make_tuple(p[0], p[1], p[2]);
 	};
 	objectMt["Has"] = [&](sol::table self, std::string type) {
-		Object* obj = OM.Get(selfCheck(self));
-		if (obj)
+		if (Object* obj = OM.Get(selfCheck(self)))
 		{
 			return obj->HasComponent(type);
 		}
 		return false;
 	};
-	lua["GetObject"] = [&](std::string name) {
+	objectMt["SendMsg"] = [&](sol::table self, sol::table msg) {
+		if (Object* obj = OM.Get(selfCheck(self)))
+		{
+			if (msg.valid())
+			{
+				obj->SendMsg(msg);
+			}
+		}
+	};
+	lua["GetObject"] = [&, objectMt](std::string name) {
 		auto obj = lua.create_table_with("handle", uint64_t(OM.GetByName(name.c_str())->handle));
-		obj[sol::metatable_key] = lua["OMT"];
-		lua["OMT"] = sol::nil;
+		obj[sol::metatable_key] = objectMt;
 		return obj;
 	};
 }

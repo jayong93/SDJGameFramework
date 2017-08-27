@@ -54,3 +54,26 @@ bool Object::HasComponent(std::string type)
 		return true;
 	return false;
 }
+
+void Object::SendMsg(sol::object msg)
+{
+	for (auto& c : compoList)
+	{
+		CM.Get(c)->SendMsg(msg);
+	}
+
+	sol::state_view lua(msg.lua_state());
+
+	auto luaCompos = lua["CompoList"][(uint64_t)handle];
+	if (luaCompos.get_type() == sol::type::table)
+	{
+		auto& table = luaCompos.get<sol::table>();
+		for (auto& c : table)
+		{
+			if (c.second.get_type() == sol::type::table)
+			{
+				c.second.as<sol::table>()["SendMsg"](msg);
+			}
+		}
+	}
+}

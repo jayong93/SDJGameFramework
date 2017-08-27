@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Handles.h"
-#include "Message.h"
+#include "typedef.h"
+
+#define MM MessageManager::Instance()
 
 class MessageManager
 {
@@ -12,11 +14,27 @@ public:
 		return inst;
 	}
 
-	void SendMsg(ComponentHandle receiver, Message& msg);
-	void BroadcastMsg(Message& msg);
+	void BroadcastMsg(sol::object& msg);
+	void RegisterComponentMessageMap(size_t type, MessageMap& msgMap)
+	{
+		componentsMsgMap.emplace(type, msgMap);
+	}
+	void RegisterInterestedComponent(size_t msgType, uint64_t handle)
+	{
+		interestedComponents[msgType].emplace(handle);
+	}
+	void Clear() { componentsMsgMap.clear(); }
+	const MessageMap* GetMsgMap(size_t type) const
+	{
+		auto it = componentsMsgMap.find(type);
+		if (it != componentsMsgMap.end())
+			return &it->second;
+		return nullptr;
+	}
 
 private:
-	MessageManager() {}
+	MessageManager() = default;
 
-	std::multimap<size_t, ComponentHandle> interestedReceivers;
+	std::map<size_t, MessageMap> componentsMsgMap;
+	std::map<size_t, std::set<uint64_t>> interestedComponents;
 };

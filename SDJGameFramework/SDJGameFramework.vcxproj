@@ -217,6 +217,7 @@
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="TestMain.cpp" />
+    <ClCompile Include="typedef.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -226,16 +227,15 @@
     <ClInclude Include="Framework.h" />
     <ClInclude Include="HandleManagers.h" />
     <ClInclude Include="Handles.h" />
-    <ClInclude Include="Message.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Action.h" />
+    <ClInclude Include="typedef.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vector3D.h" />
-    <ClInclude Include="ComponentType.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.lua" />

@@ -2,8 +2,6 @@
 
 #include "ComponentManager.h"
 
-struct Message;
-
 struct BaseSystem
 {
 	virtual void Init() {};

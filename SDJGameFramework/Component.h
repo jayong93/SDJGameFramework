@@ -2,8 +2,7 @@
 
 #include "Handles.h"
 #include "Vector3D.h"
-
-struct Message;
+#include "typedef.h"
 
 /*
 모든 컴포넌트들의 조상
@@ -14,7 +13,8 @@ struct Component
 {
 	virtual ~Component() {}
 
-	virtual void SendMsg(Message& msg) {};
+	void SendMsg(sol::object& args);
+	static MessageMap InitMsgMap() { return MessageMap(); }
 
 	ObjectHandle owner;
 	ComponentHandle handle;
@@ -24,9 +24,15 @@ struct Shape : public Component
 {
 	virtual ~Shape() {}
 
-	enum {NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT} shapeType;
+	enum Type { NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT } shapeType = NONE;
 	double drawParam[4] = { 0.f, 0.f, 0.f, 0.f };
 	Vector3D color;
+
+	const static StringHashMap<unsigned> typeMap;
+	static MessageMap InitMsgMap();
+
+private:
+	static StringHashMap<unsigned> InitTypeMap();
 };
 
 struct LuaCompo : public Component

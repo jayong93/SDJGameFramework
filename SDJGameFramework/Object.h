@@ -2,7 +2,6 @@
 
 #include "Vector3D.h"
 #include "Handles.h"
-#include "ComponentType.h"
 
 /*
 게임에서 다뤄지는 최소 객체
@@ -25,4 +24,5 @@ struct Object
 	void AddComponent(ComponentHandle handle);
 	bool DelComponent(ComponentHandle handle);
 	bool HasComponent(std::string type);
+	void SendMsg(sol::object msg);
 };

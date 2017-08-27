@@ -61,6 +61,7 @@ void ComponentManager::ClearAndUnregister()
 {
 	Clear();
 	compoMap.clear();
+	MessageManager::Instance().Clear();
 }
 
 size_t ComponentManager::Type(const ComponentHandle& handle) const
