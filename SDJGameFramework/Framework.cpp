@@ -10,19 +10,22 @@ void Framework::Init()
 {
 	// 시스템 초기화
 	LuaStateInitialize(lua);
-	render.Init();
-	logic.Init();
+	
+	render = std::make_unique<RenderSystem>();
+	render->Init();
+	logic = std::make_unique<GameLogic>();
+	logic->Init();
 	timer.Init();
 }
 
 void Framework::Update(double time)
 {
-	logic.Update(time);
+	logic->Update(time);
 }
 
 void Framework::Render()
 {
-	render.Render();
+	render->Render();
 }
 
 void Framework::MainLoop()
@@ -107,6 +110,9 @@ void Framework::LoadScene(const std::string & fileName)
 
 void Framework::CleanUp()
 {
+	render.reset();
+	logic.reset();
+
 	OM.Clear();
 	CM.ClearAndUnregister();
 	MM.Clear();
