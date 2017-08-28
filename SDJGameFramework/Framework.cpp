@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Systems.h"
 #include "Framework.h"
+#include "HandleManagers.h"
+#include "MessageManager.h"
 
 using namespace rapidjson;
 
@@ -90,11 +92,15 @@ void Framework::LoadScene(const std::string & fileName)
 			pos.data[i] = posData[i].GetDouble();
 
 		auto hObj = OM.Add(data["name"].GetString(), pos);
-		
+
 		auto& compoList = data["component"].GetArray();
 		for (auto& c : compoList)
 		{
-			CM.AddLuaComponent(c.GetString(), hObj);
+			auto compoName = c.GetString();
+			if (CM.IsRegistered(compoName))
+				CM.Add(compoName, hObj);
+			else
+				CM.AddLuaComponent(c.GetString(), hObj);
 		}
 	}
 }

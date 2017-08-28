@@ -95,8 +95,18 @@ bool LuaComponent::SetScript(const std::string & name)
 		env = sol::environment{ lua, sol::create, lua.globals() };
 		sol::set_environment(env, fn); fn();
 		env["owner"] = lua["Object"]["Get"](handle.ToUInt64());
-		lua["Component"]["instance"][uint64_t(handle)] = env.as<sol::table>();
+		lua["Component"]["instance"][handle.ToUInt64()] = env.as<sol::table>();
 		return true;
 	}
 	return false;
+}
+
+void LuaComponent::SendMsg(sol::object & args)
+{
+	auto& lua = FW.lua;
+	sol::protected_function msgHandler = env["SendMsg"];
+	if (msgHandler.valid())
+	{
+		msgHandler(args);
+	}
 }

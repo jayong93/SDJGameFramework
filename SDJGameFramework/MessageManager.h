@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Handles.h"
 #include "typedef.h"
 
 #define MM MessageManager::Instance()

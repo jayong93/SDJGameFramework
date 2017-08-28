@@ -13,7 +13,7 @@ struct Component
 {
 	virtual ~Component() = 0;
 
-	void SendMsg(sol::object& args);
+	virtual void SendMsg(sol::object& args);
 	static MessageMap InitMsgMap() { return MessageMap(); }
 
 	ObjectHandle owner;
@@ -39,6 +39,7 @@ struct LuaComponent : public Component
 {
 	virtual ~LuaComponent() {}
 	bool SetScript(const std::string& name);
+	virtual void SendMsg(sol::object& args);
 
 	sol::environment env;
 	std::string scriptName;

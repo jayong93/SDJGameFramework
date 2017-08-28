@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ComponentManager.h"
 #include "ObjectManager.h"
+#include "Framework.h"
+#include "MessageManager.h"
+#include "ObjectManager.h"
 
 Component * ComponentManager::Get(const ComponentHandle & handle)
 {
@@ -93,8 +96,8 @@ ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string
 ComponentHandle ComponentManager::Add_(size_t type, const ObjectHandle & owner)
 {
 	auto it = compoMap.find(type);
-	bool con = it != compoMap.end();
-	assert(con && "unregistered type");
+	if (it != compoMap.end())
+		return ComponentHandle();
 
 	auto obj = OM.Get(owner);
 	if (obj->HasComponent(type))
@@ -138,4 +141,9 @@ ComponentHandle ComponentManager::Add_(size_t type, size_t realType, ICompoList 
 	OM.Get(owner)->AddComponent(handle);
 
 	return handle;
+}
+
+void ComponentManager::RegisterComponentList_(size_t type, MessageMap & msgMap)
+{
+	MM.RegisterComponentMessageMap(type, msgMap);
 }

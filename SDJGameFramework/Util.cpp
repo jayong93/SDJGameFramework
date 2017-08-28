@@ -63,7 +63,6 @@ static void LuaObjectInitialize(sol::state_view& lua)
 			}
 		}
 	};
-	// TODO: 이름 뿐만 아니라 핸들이 넘어올 경우에도 얻도록 변경
 	lua["Object"]["Get"] = [&, objectMt](sol::object args) -> sol::object {
 		uint64_t handle = 0;
 
@@ -96,7 +95,6 @@ static void LuaComponentInitialize(sol::state_view& lua)
 
 static void LuaGlobalInitialize(sol::state_view& lua)
 {
-	lua.create_named_table("ENV");
 	lua.create_named_table("Component");
 	lua.create_named_table("Object");
 }

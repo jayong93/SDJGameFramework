@@ -2,6 +2,7 @@
 #include "Object.h"
 #include "HandleManagers.h"
 #include "Framework.h"
+#include "Component.h"
 
 bool Object::AddComponent(ComponentHandle handle)
 {
@@ -9,11 +10,7 @@ bool Object::AddComponent(ComponentHandle handle)
 	if (compo == nullptr) return false;
 	if (compo->owner) return false;
 
-	return AddComponent_(handle, compo, CM.Type(handle));
-}
-
-bool Object::AddComponent_(ComponentHandle handle, Component* compo, size_t type)
-{
+	auto type = CM.Type(handle);
 	auto it = compoTypeSet.find(type);
 	if (it == compoTypeSet.end())
 		compoTypeSet.emplace(type);
@@ -64,20 +61,5 @@ void Object::SendMsg(sol::object msg)
 	for (auto& c : compoList)
 	{
 		CM.Get(c)->SendMsg(msg);
-	}
-
-	sol::state_view lua(msg.lua_state());
-
-	auto luaCompos = lua["ComponentList"][(uint64_t)handle];
-	if (luaCompos.get_type() == sol::type::table)
-	{
-		auto& table = luaCompos.get<sol::table>();
-		for (auto& c : table)
-		{
-			if (c.second.get_type() == sol::type::table)
-			{
-				c.second.as<sol::table>()["SendMsg"](msg);
-			}
-		}
 	}
 }

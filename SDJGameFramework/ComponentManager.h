@@ -2,8 +2,6 @@
 
 #include "Component.h"
 #include "Util.h"
-#include "ObjectManager.h"
-#include "MessageManager.h"
 
 #define CM ComponentManager::Instance()
 
@@ -127,6 +125,7 @@ private:
 	~ComponentManager() {}
 	ComponentHandle Add_(size_t type, const ObjectHandle& owner);
 	ComponentHandle Add_(size_t type, size_t realType, ICompoList* list, const ObjectHandle& owner);
+	void RegisterComponentList_(size_t type, MessageMap& msgMap);
 
 	std::map<size_t, ICompoList*> compoMap;
 
@@ -138,7 +137,6 @@ private:
 		unsigned index = 0;
 		bool isActive = false;
 	};
-
 	std::vector<HandleEntry> handleList;
 	std::deque<unsigned> freeIndexQueue;
 };
@@ -179,5 +177,5 @@ inline void ComponentManager::RegisterComponentList(T& list)
 	bool con = IsRegistered(type);
 	assert(!con && "this type registered already");
 	compoMap[type] = &list;
-	MessageManager::Instance().RegisterComponentMessageMap(type, T::CompoType::InitMsgMap());
+	RegisterComponentList_(type, T::CompoType::InitMsgMap());
 }
