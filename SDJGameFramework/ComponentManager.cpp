@@ -42,11 +42,6 @@ void ComponentManager::Delete(const ComponentHandle & handle)
 
 void ComponentManager::Clear()
 {
-	for (auto& cList : compoMap)
-	{
-		cList.second->Clear();
-	}
-
 	handleList.clear();
 	freeIndexQueue.clear();
 }
@@ -91,7 +86,7 @@ ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string
 ComponentHandle ComponentManager::Add_(size_t type, const ObjectHandle & owner)
 {
 	auto it = compoMap.find(type);
-	if (it != compoMap.end())
+	if (it == compoMap.end())
 		return ComponentHandle();
 
 	auto obj = OM.Get(owner);

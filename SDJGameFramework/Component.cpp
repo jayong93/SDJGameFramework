@@ -97,8 +97,9 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 LuaComponent::~LuaComponent()
 {
 	auto& lua = FW.lua;
-	auto inst = lua["Component"]["instance"][handle.ToUInt64()];
-	if (inst.get_type() == sol::type::table) inst = sol::nil;
+	sol::table table = lua["Component"]["instance"][handle.ToUInt64()];
+	if (table.valid())
+		lua["Component"]["instance"][handle.ToUInt64()] = sol::nil;
 }
 
 bool LuaComponent::SetScript(const std::string & name)

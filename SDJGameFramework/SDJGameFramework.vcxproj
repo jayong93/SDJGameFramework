@@ -235,6 +235,7 @@
     <ClInclude Include="Framework.h" />
     <ClInclude Include="HandleManagers.h" />
     <ClInclude Include="Handles.h" />
+    <ClInclude Include="headers.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectManager.h" />

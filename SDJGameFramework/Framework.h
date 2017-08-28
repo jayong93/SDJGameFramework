@@ -25,8 +25,8 @@ struct Framework
 
 	sol::state lua;
 
-	RenderSystem render;
-	GameLogic logic;
+	std::unique_ptr<RenderSystem> render;
+	std::unique_ptr<GameLogic> logic;
 
 	double limitedFrame = 60.;
 	std::function<sol::protected_function_result(lua_State*, sol::protected_function_result)> luaErrFunc;
