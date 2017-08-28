@@ -8,7 +8,6 @@ void Framework::Init()
 {
 	// 시스템 초기화
 	LuaStateInitialize(lua);
-	luaEnv = sol::environment{ lua, sol::create, lua.globals() };
 	render.Init();
 	logic.Init();
 	timer.Init();
@@ -28,6 +27,10 @@ void Framework::MainLoop()
 {
 	double timeElapsed = timer.GetElapsedTime();
 	double limitedTime = (1 / limitedFrame);
+#ifdef SDJ_TEST_BUILD
+	timer.UpdateTimePoint();
+	Update(timeElapsed);
+#else
 	if (timeElapsed >= limitedTime)
 	{
 		timer.UpdateTimePoint();
@@ -36,6 +39,7 @@ void Framework::MainLoop()
 	}
 	else if (timeElapsed < limitedTime - 0.005)
 		lua.collect_garbage();
+#endif
 }
 
 void Framework::SetView(int w, int h)
@@ -68,11 +72,7 @@ void Framework::LoadScene(const std::string & fileName)
 			std::ifstream compoScript{ fullName };
 			if (compoScript.bad()) continue;
 
-			
-			sol::protected_function fn = lua.load(R"(function Update(time)
-    local owner = Object.Get(owner)
-    owner:Move(0,0,-2)
-end)");
+			sol::protected_function fn = lua.load_file(fullName);
 			if (!fn.valid()) continue;
 			lua["Component"]["prototype"][compoName] = fn;
 		}

@@ -88,16 +88,15 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 
 bool LuaComponent::SetScript(const std::string & name)
 {
-	// 환경을 만드는데 문제가 있음.
-	// 아래대로 하면 환경에 함수들이 등록이 안됨
-	sol::protected_function fn = FW.lua["Component"]["prototype"][name];
+	auto& lua = FW.lua;
+	sol::protected_function fn = lua["Component"]["prototype"][name];
 	if (fn.valid())
 	{
-		auto mt = FW.lua.create_table_with("__index", FW.luaEnv);
-		sol::environment env{ FW.lua, sol::create };
-		sol::set_environment(env, fn);
-		env[sol::metatable_key] = mt;
-		FW.lua["Component"]["instance"][uint64_t(handle)] = fn();
+		env = sol::environment{ lua, sol::create, lua.globals() };
+		sol::set_environment(env, fn); fn();
+		env["owner"] = lua["Object"]["Get"](handle.ToUInt64());
+		lua["Component"]["instance"][uint64_t(handle)] = env.as<sol::table>();
+		return true;
 	}
 	return false;
 }

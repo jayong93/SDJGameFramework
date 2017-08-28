@@ -40,5 +40,6 @@ struct LuaComponent : public Component
 	virtual ~LuaComponent() {}
 	bool SetScript(const std::string& name);
 
+	sol::environment env;
 	std::string scriptName;
 };

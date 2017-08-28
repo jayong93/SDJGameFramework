@@ -11,6 +11,7 @@ struct Handle
 
 	operator bool() const { return (count != 0); }
 	operator uint64_t() const { return uint64_t(index) << 24 | count; }
+	uint64_t ToUInt64() const { return uint64_t(*this); }
 
 	unsigned index;
 	unsigned count : 24;

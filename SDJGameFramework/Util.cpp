@@ -63,10 +63,27 @@ static void LuaObjectInitialize(sol::state_view& lua)
 			}
 		}
 	};
-	lua["Object"]["GetObject"] = [&, objectMt](std::string name) {
-		auto obj = lua.create_table_with("handle", uint64_t(OM.GetByName(name.c_str())->handle));
-		obj[sol::metatable_key] = objectMt;
-		return obj;
+	// TODO: 이름 뿐만 아니라 핸들이 넘어올 경우에도 얻도록 변경
+	lua["Object"]["Get"] = [&, objectMt](sol::object args) -> sol::object {
+		uint64_t handle = 0;
+
+		if (args.is<std::string>())
+		{
+			auto name = args.as<std::string>();
+			Object* obj = OM.GetByName(name.c_str());
+			if (!obj) return sol::nil;
+			handle = obj->handle.ToUInt64();
+		}
+		else if (args.is<uint64_t>())
+		{
+			handle = args.as<uint64_t>();
+			Object* obj = OM.Get(handle);
+			if (!obj) return sol::nil;
+		}
+
+		auto objTable = lua.create_table_with("handle", handle);
+		objTable[sol::metatable_key] = objectMt;
+		return objTable;
 	};
 }
 
@@ -75,17 +92,11 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	auto& compoTable = lua["Component"].get<sol::table>();
 	compoTable.create_named("prototype");
 	compoTable.create_named("instance");
-	lua.safe_script(R"(
-function Component:Loop(time)
-	for i, v in pairs(self.instance) do
-		v.Update(time)
-	end
-end
-)");
 }
 
 static void LuaGlobalInitialize(sol::state_view& lua)
 {
+	lua.create_named_table("ENV");
 	lua.create_named_table("Component");
 	lua.create_named_table("Object");
 }

@@ -53,9 +53,19 @@ void GameLogic::Init()
 void GameLogic::Update(double time)
 {
 	auto& lua = FW.lua;
-	auto& compoTable = lua["Component"]["Loop"];
-	if (compoTable)
+	for (auto& c : this->scriptList)
 	{
-		compoTable(time);
+		sol::table instance = lua["Component"]["instance"][uint64_t(c.handle)];
+		if (instance)
+		{
+			sol::protected_function fn = instance["Update"];
+			if (fn)
+			{
+				sol::set_environment(c.env, fn);
+				auto ret = fn(time);
+				if (!ret.valid())
+					cout << ret.get<string>() << endl;
+			}
+		}
 	}
 }

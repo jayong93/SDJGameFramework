@@ -21,12 +21,10 @@ struct Framework
 	void Render();
 	void MainLoop();
 	void SetView(int w, int h);
-	auto RunLuaScript(const std::string& script) { return lua.safe_script(script, luaEnv, luaErrFunc); }
 	void LoadScene(const std::string& fileName);
 	void CleanUp();
 
 	sol::state lua;
-	sol::environment luaEnv;
 
 	RenderSystem render;
 	GameLogic logic;

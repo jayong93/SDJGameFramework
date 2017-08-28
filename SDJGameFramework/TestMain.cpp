@@ -273,7 +273,7 @@ struct LuaTestFixture : public testing::Test
 TEST_F(LuaTestFixture, ControlObject)
 {
 	lua.safe_script(R"(
-obj1 = Object.GetObject("obj1")
+obj1 = Object.Get("obj1")
 obj1:MoveTo(3,4,5)
 	)", errFn
 	);
@@ -309,9 +309,9 @@ TEST_F(LuaTestFixture, ControlComponentViaMessage)
 	auto compo2 = CM.GetBy<Shape>(hc2);
 
 	lua.safe_script(R"(
-obj1 = Object.GetObject("obj1")
+obj1 = Object.Get("obj1")
 obj1:SendMsg{"CHANGE_SHAPE",type="sphere",radius=5,slice=4,stack=3}
-Object.GetObject("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
+Object.Get("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
 )", errFn);
 
 	EXPECT_TRUE(compo1->shapeType == Shape::SPHERE);
@@ -358,12 +358,9 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 	auto& instances = FW.lua["Component"]["instance"].get<sol::table>();
 	ASSERT_TRUE(instances);
 
-	for (auto& i : instances)
-	{
-		cout << i.first.as<string>() << ", " << i.second.as<string>() << endl;
-	}
-
-	EXPECT_TRUE(instances.size() == 4);
+	int i = 0;
+	instances.for_each([&i](auto& a, auto& b) {i++; });
+	EXPECT_TRUE(i == 4);
 
 	FW.MainLoop();
 
