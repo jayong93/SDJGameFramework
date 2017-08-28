@@ -64,7 +64,7 @@ void GameLogic::Update(double time)
 				sol::set_environment(c.env, fn);
 				auto ret = fn(time);
 				if (!ret.valid())
-					cout << ret.get<string>() << endl;
+					perror(ret.get<string>().c_str());
 			}
 		}
 	}

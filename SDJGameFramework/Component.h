@@ -37,7 +37,7 @@ private:
 
 struct LuaComponent : public Component
 {
-	virtual ~LuaComponent() {}
+	virtual ~LuaComponent();
 	bool SetScript(const std::string& name);
 	virtual void SendMsg(sol::object& args);
 
