@@ -2,7 +2,8 @@
 
 struct Handle
 {
-	Handle(unsigned i = 0, unsigned c = 0) :
+	Handle() : index{ 0 }, count{ 0 } {}
+	Handle(unsigned i, unsigned c) :
 		index{ i },
 		count{ c }
 	{}
