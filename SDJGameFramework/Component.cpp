@@ -86,6 +86,13 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 	return map;
 }
 
+LuaComponent::~LuaComponent()
+{
+	auto& lua = FW.lua;
+	auto inst = lua["Component"]["instance"][handle.ToUInt64()];
+	if (inst.get_type() == sol::type::table) inst = sol::nil;
+}
+
 bool LuaComponent::SetScript(const std::string & name)
 {
 	auto& lua = FW.lua;
