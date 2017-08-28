@@ -124,7 +124,7 @@ private:
 	~ComponentManager() {}
 	ComponentHandle Add_(size_t type, const ObjectHandle& owner);
 	ComponentHandle Add_(size_t type, size_t realType, ICompoList* list, const ObjectHandle& owner);
-	void RegisterComponentList_(size_t type, MessageMap& msgMap);
+	void RegisterComponentList_(const std::string& type, size_t numType, MessageMap& msgMap);
 
 	std::map<size_t, ICompoList*> compoMap;
 
@@ -172,10 +172,11 @@ inline size_t ComponentManager::Size() const
 template<typename T>
 inline void ComponentManager::RegisterComponentList(T& list)
 {
-	size_t type = GetTypeHash<T::CompoType>();
+	std::string type = GetTypeName<T::CompoType>();
+	size_t numType = GetHash(type);
 	bool con = IsRegistered(type);
 	assert(!con && "this type registered already");
-	compoMap[type] = &list;
-	RegisterComponentList_(type, T::CompoType::InitMsgMap());
+	compoMap[numType] = &list;
+	RegisterComponentList_(type, numType, T::CompoType::InitMsgMap());
 	T::CompoType::GetSetFunc();
 }

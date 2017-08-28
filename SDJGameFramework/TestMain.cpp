@@ -45,6 +45,7 @@ struct ObjectTestFixture : public testing::Test
 
 	void SetUp()
 	{
+		FW.Init();
 		hObj1 = OM.Add("obj1");
 		hObj2 = OM.Add("obj2");
 		hObj3 = OM.Add("obj3");
@@ -52,7 +53,7 @@ struct ObjectTestFixture : public testing::Test
 
 	void TearDown()
 	{
-		OM.Clear();
+		FW.CleanUp();
 	}
 };
 
@@ -106,9 +107,6 @@ TEST_F(ObjectTestFixture, ReuseFreeIndex)
 
 TEST_F(ObjectTestFixture, AddComponent)
 {
-	CompoList<Shape> sList;
-	CM.RegisterComponentList(sList);
-
 	auto obj = OM.Get(hObj1);
 	obj->AddComponent(Handle());
 	EXPECT_TRUE(obj->compoList.size() == 0 && obj->compoIdxMap.size() == 0);
@@ -120,15 +118,10 @@ TEST_F(ObjectTestFixture, AddComponent)
 	auto obj2 = OM.Get(hObj2);
 	obj2->AddComponent(compo);
 	EXPECT_TRUE(CM.Get(compo)->owner == hObj1);
-
-	CM.ClearAndUnregister();
 }
 
 TEST_F(ObjectTestFixture, DelComponent)
 {
-	CompoList<Shape> sList;
-	CM.RegisterComponentList(sList);
-
 	auto obj = OM.Get(hObj1);
 	auto compo = CM.Add<Shape>(hObj1);
 	auto compo2 = CM.Add<Shape>(hObj2);
@@ -139,15 +132,10 @@ TEST_F(ObjectTestFixture, DelComponent)
 	obj = OM.Get(hObj2);
 	obj->DelComponent(compo2);
 	EXPECT_TRUE(obj->compoList.size() == 0 && obj->compoIdxMap.size() == 0);
-
-	CM.ClearAndUnregister();
 }
 
 TEST_F(ObjectTestFixture, HasComponent)
 {
-	CompoList<Shape> sList;
-	CM.RegisterComponentList(sList);
-
 	auto obj = OM.Get(hObj1);
 	auto obj2 = OM.Get(hObj2);
 	auto compo = CM.Add<Shape>(hObj1);
@@ -160,14 +148,11 @@ TEST_F(ObjectTestFixture, HasComponent)
 	obj2->DelComponent(compo2);
 	EXPECT_FALSE(obj->HasComponent("Shape"));
 	EXPECT_FALSE(obj2->HasComponent("Shape"));
-
-	CM.ClearAndUnregister();
 }
 
 TEST(ComponentTest, Add)
 {
-	CompoList<Shape> sList;
-	CM.RegisterComponentList(sList);
+	FW.Init();
 	auto obj = OM.Add("test");
 	auto obj2 = OM.Add("test2");
 
@@ -179,19 +164,17 @@ TEST(ComponentTest, Add)
 	EXPECT_TRUE(CM.Get(handle)->handle == handle);
 	EXPECT_TRUE(CM.Get(handle2)->handle == handle2);
 
-	OM.Clear();
-	CM.ClearAndUnregister();
+	FW.CleanUp();
 }
 
 struct ComponentTestFixture : testing::Test
 {
-	CompoList<Shape> shapeList;
 	ComponentHandle hCompo[3];
 	ObjectHandle hObj[3];
 
 	void SetUp()
 	{
-		CM.RegisterComponentList(shapeList);
+		FW.Init();
 		for (int i = 0; i < sizeof(hCompo) / sizeof(ComponentHandle); ++i)
 		{
 			std::string objName{ "obj" };
@@ -204,8 +187,7 @@ struct ComponentTestFixture : testing::Test
 
 	void TearDown()
 	{
-		CM.ClearAndUnregister();
-		OM.Clear();
+		FW.CleanUp();
 	}
 };
 
@@ -243,8 +225,6 @@ TEST_F(ComponentTestFixture, Type)
 
 struct LuaTestFixture : public testing::Test
 {
-	sol::state lua;
-	CompoList<Shape> shapeList;
 	ObjectHandle obj1, obj2;
 	function<sol::protected_function_result(lua_State*, sol::protected_function_result)> errFn;
 
@@ -255,8 +235,7 @@ struct LuaTestFixture : public testing::Test
 				cout << pfr.get<string>() << endl;
 			return pfr;
 		};
-		LuaStateInitialize(lua);
-		CM.RegisterComponentList(shapeList);
+		FW.Init();
 		obj1 = OM.Add("obj1");
 		obj2 = OM.Add("obj2");
 		CM.Add<Shape>(obj1);
@@ -265,13 +244,13 @@ struct LuaTestFixture : public testing::Test
 
 	void TearDown()
 	{
-		OM.Clear();
-		CM.ClearAndUnregister();
+		FW.CleanUp();
 	}
 };
 
 TEST_F(LuaTestFixture, ControlObject)
 {
+	auto& lua = FW.lua;
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 obj1:MoveTo(3,4,5)
@@ -303,6 +282,7 @@ obj1:MoveTo(3,4,5)
 
 TEST_F(LuaTestFixture, ControlComponentViaMessage)
 {
+	auto& lua = FW.lua;
 	auto hc1 = OM.Get(obj1)->compoList[0];
 	auto hc2 = OM.Get(obj2)->compoList[0];
 	auto compo1 = CM.GetBy<Shape>(hc1);
