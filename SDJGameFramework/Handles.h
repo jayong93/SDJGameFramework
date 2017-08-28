@@ -6,6 +6,8 @@ struct Handle
 		index{ i },
 		count{ c }
 	{}
+	Handle(uint64_t h) : Handle{ h >> 24, h }
+	{}
 
 	bool operator==(const Handle& h) { return (index == h.index) && (count == h.count); }
 
@@ -15,8 +17,6 @@ struct Handle
 
 	unsigned index;
 	unsigned count : 24;
-
-	static Handle ToHandle(uint64_t h) { return Handle(h >> 24, h); }
 };
 
 using ObjectHandle = Handle;

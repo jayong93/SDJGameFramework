@@ -3,6 +3,7 @@
 #include "MessageManager.h"
 #include "Framework.h"
 #include "Util.h"
+#include "ComponentGetSetMacro.h"
 
 #define MSG_HANDLER(Component, Table) [](void* Component, sol::table& Table) -> bool
 
@@ -70,6 +71,13 @@ MessageMap Shape::InitMsgMap()
 	};
 
 	return map;
+}
+
+void Shape::GetSetFunc()
+{
+	START_GETSET_DEF(Shape);
+	SIMPLE_GETSET_DEF(test, test);
+	END_GETSET_DEF();
 }
 
 StringHashMap<unsigned> Shape::InitTypeMap()

@@ -17,11 +17,6 @@ Component * ComponentManager::Get(const ComponentHandle & handle)
 	return compoMap.at(entry.type)->Get(entry.index);
 }
 
-Component * ComponentManager::Get(uint64_t handle)
-{
-	return Get(Handle::ToHandle(handle));
-}
-
 void ComponentManager::Delete(const ComponentHandle & handle)
 {
 	bool con = handleList.size() > handle.index;

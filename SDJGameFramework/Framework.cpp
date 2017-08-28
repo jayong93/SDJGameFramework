@@ -77,6 +77,8 @@ void Framework::LoadScene(const std::string & fileName)
 			sol::protected_function fn = lua.load_file(fullName);
 			if (!fn.valid()) continue;
 			lua["Component"]["prototype"][compoName] = fn;
+			lua["Component"]["get"][compoName] = lua.create_table();
+			lua["Component"]["set"][compoName] = lua.create_table();
 		}
 	}
 

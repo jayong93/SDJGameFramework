@@ -63,11 +63,6 @@ Object * ObjectManager::Get(const ObjectHandle & handle)
 	return &objectList[entry.index];
 }
 
-Object * ObjectManager::Get(uint64_t handle)
-{
-	return Get(Handle::ToHandle(handle));
-}
-
 Object * ObjectManager::GetByName(const std::string& name)
 {
 	auto it = objectNameMap.find(name);

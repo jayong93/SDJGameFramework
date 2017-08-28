@@ -88,9 +88,11 @@ static void LuaObjectInitialize(sol::state_view& lua)
 
 static void LuaComponentInitialize(sol::state_view& lua)
 {
-	auto& compoTable = lua["Component"].get<sol::table>();
+	auto compoTable = lua["Component"].get<sol::table>();
 	compoTable.create_named("prototype");
 	compoTable.create_named("instance");
+	compoTable.create_named("get");
+	compoTable.create_named("set");
 }
 
 static void LuaGlobalInitialize(sol::state_view& lua)

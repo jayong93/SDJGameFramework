@@ -98,7 +98,6 @@ public:
 	T* GetBy(const ComponentHandle& handle);
 
 	Component* Get(const ComponentHandle& handle);
-	Component* Get(uint64_t handle);
 	void Delete(const ComponentHandle& handle);
 	void Clear();
 	void ClearAndUnregister();
@@ -178,4 +177,5 @@ inline void ComponentManager::RegisterComponentList(T& list)
 	assert(!con && "this type registered already");
 	compoMap[type] = &list;
 	RegisterComponentList_(type, T::CompoType::InitMsgMap());
+	T::CompoType::GetSetFunc();
 }
