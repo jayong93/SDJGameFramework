@@ -292,8 +292,8 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Shape")
-ret = compo1:Get{"type","size_cube"}
-Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", radius=10, slice_sphere=20, stack_sphere=30}
+ret = compo1:Get{"type","cubeSize"}
+Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sphereSlice=20, sphereStack=30}
 )", errFn);
 
 	sol::table ret = lua["ret"];

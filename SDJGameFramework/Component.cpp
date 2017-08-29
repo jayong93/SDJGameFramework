@@ -32,19 +32,19 @@ const char* Shape::typeNames[] = { "none", "cube", "sphere", "cone", "torus", "t
 void Shape::InitGetSetFunc()
 {
 	START_GETSET_DEF(Shape);
-	SIMPLE_GETSET_DEF(radius, sphere.radius);
-	SIMPLE_GETSET_DEF(base, cone.base);
-	SIMPLE_GETSET_DEF(height, cone.height);
-	SIMPLE_GETSET_DEF(side, torus.side);
-	SIMPLE_GETSET_DEF(ring, torus.ring);
-	SIMPLE_GETSET_DEF(inner_radius, torus.innerRadius);
-	SIMPLE_GETSET_DEF(outer_radius, torus.outerRadius);
-	SIMPLE_GETSET_DEF(size_cube, cube.size);
-	SIMPLE_GETSET_DEF(size_teapot, teapot.size);
-	SIMPLE_GETSET_DEF(slice_sphere, sphere.slice);
-	SIMPLE_GETSET_DEF(slice_cone, cone.slice);
-	SIMPLE_GETSET_DEF(stack_sphere, sphere.stack);
-	SIMPLE_GETSET_DEF(stack_cone, cone.stack);
+	SIMPLE_GETSET_DEF(sphereRadius, sphere.radius);
+	SIMPLE_GETSET_DEF(coneBase, cone.base);
+	SIMPLE_GETSET_DEF(coneHeight, cone.height);
+	SIMPLE_GETSET_DEF(torusSide, torus.side);
+	SIMPLE_GETSET_DEF(torusRing, torus.ring);
+	SIMPLE_GETSET_DEF(torusInnerRadius, torus.innerRadius);
+	SIMPLE_GETSET_DEF(torusOuterRadius, torus.outerRadius);
+	SIMPLE_GETSET_DEF(cubeSize, cube.size);
+	SIMPLE_GETSET_DEF(teapotSize, teapot.size);
+	SIMPLE_GETSET_DEF(sphereSlice, sphere.slice);
+	SIMPLE_GETSET_DEF(coneSlice, cone.slice);
+	SIMPLE_GETSET_DEF(sphereStack, sphere.stack);
+	SIMPLE_GETSET_DEF(coneStack, cone.stack);
 	START_COMPLEX_GET_DEF(type, obj);
 	{
 		return typeNames[obj->shapeType];
