@@ -281,6 +281,50 @@ obj1:MoveTo(3,4,5)
 	EXPECT_TRUE(lua["ret"].get<bool>());
 }
 
+TEST_F(LuaTestFixture, LuaEnvironment)
+{
+	auto& lua = FW.lua;
+	sol::environment env{ lua,sol::create,lua.globals() };
+	lua["env"] = env;
+	sol::table a = lua.create_named_table("a");
+	sol::protected_function fn = lua.load(R"(function test()
+b = 5
+end
+a.c=4
+)");
+	sol::set_environment(env, fn);
+	fn();
+
+	sol::object obj = a["c"];
+	EXPECT_TRUE(obj.as<int>() == 4);
+
+	sol::table mt = lua.create_table();
+	mt["__newindex"] = mt;
+	a[sol::metatable_key] = mt;
+
+	a["d"] = 10;
+	obj = mt["d"];
+	EXPECT_TRUE(obj.as<int>() == 10);
+	a.push();
+	lua_pushstring(lua, "d");
+	lua_pushinteger(lua, 10);
+	lua_rawset(lua, -3);
+	a.pop();
+	obj = a["d"];
+	EXPECT_TRUE(obj.as<int>() == 10);
+
+	obj = lua["test"];
+	EXPECT_TRUE(obj.get_type() == sol::type::nil);
+
+	sol::protected_function testFn = lua["env"]["test"];
+	EXPECT_TRUE(testFn.valid());
+	testFn();
+	obj = lua["b"];
+	EXPECT_TRUE(obj.get_type() == sol::type::nil);
+	obj = lua["env"]["b"];
+	EXPECT_TRUE(obj.get_type() == sol::type::number);
+}
+
 TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 {
 	auto& lua = FW.lua;
