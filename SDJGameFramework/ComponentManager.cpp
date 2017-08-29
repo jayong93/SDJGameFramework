@@ -136,6 +136,6 @@ ComponentHandle ComponentManager::Add_(size_t type, size_t realType, ICompoList 
 void ComponentManager::RegisterComponentList_(const std::string& type, size_t numType, MessageMap & msgMap)
 {
 	MM.RegisterComponentMessageMap(numType, msgMap);
-	FW.lua["Component"]["get"][type] = FW.lua.create_table();
-	FW.lua["Component"]["set"][type] = FW.lua.create_table();
+	FW.lua["Component"]["get"][numType] = FW.lua.create_table();
+	FW.lua["Component"]["set"][numType] = FW.lua.create_table();
 }

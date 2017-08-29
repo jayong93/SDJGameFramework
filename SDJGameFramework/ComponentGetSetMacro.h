@@ -5,19 +5,21 @@
 	static bool init = true;\
 	sol::state& lua = FW.lua;\
 	if(init){\
-		std::string typeName = GetTypeName<TYPE>()
+		size_t typeNum = GetTypeHash<TYPE>();\
+		sol::table getT = lua["Component"]["get"][typeNum];\
+		sol::table setT = lua["Component"]["set"][typeNum];
 #define END_GETSET_DEF_() \
 	init = false; \
 	}\
 	return
 #define SIMPLE_GETSET_DEF_(name, var) \
-		lua["Component"]["get"][typeName][#name] =\
+		getT[#name] =\
 		[&lua](uint64_t h) -> sol::object {\
 			auto c = CM.GetBy<TYPE>(h);\
 			if(c) return sol::make_object(lua, c->var);\
 			return sol::nil;\
 		};\
-		lua["Component"]["set"][typeName][#name] =\
+		setT[#name] =\
 		[](uint64_t h, sol::object v) {\
 			auto c = CM.GetBy<TYPE>(h);\
 			if(c && v.is<decltype(c->var)>()) c->var = v.as<decltype(c->var)>();\

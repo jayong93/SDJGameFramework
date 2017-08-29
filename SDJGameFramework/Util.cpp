@@ -103,10 +103,26 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		}
 		return 0;
 	};
-	compoMt["Get"] = [selfCheck](sol::table self, sol::object arg)
+	compoMt["Get"] = [&, selfCheck](sol::table self, sol::object arg) -> sol::object
 	{
-		if (CM.Get(selfCheck(self)))
+		auto handle = selfCheck(self);
+		if (CM.Get(handle))
 		{
+			sol::table argTable = arg.as<sol::table>();
+			if (argTable.valid())
+			{
+				sol::table t = lua.create_table();
+				auto type = CM.Type(handle);
+				for (int i = 0; i < argTable.size(); ++i)
+				{
+					if (argTable[i].get_type() == sol::type::string)
+						t.add(lua["Component"]["get"][type][argTable[i]](handle));
+					else
+						t.add(sol::nil);
+				}
+				return lua["unpack"](t);
+			}
+			else return sol::nil;
 		}
 	};
 	compoTable["Get"] = [&, compoMt](uint64_t handle) -> sol::object
