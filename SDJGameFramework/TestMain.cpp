@@ -292,15 +292,15 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Shape")
-ret = compo1:Get{"type","cubeSize"}
+type, size = compo1:Get{"error","cubeSize"}
 Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sphereSlice=20, sphereStack=30}
 )", errFn);
 
-	sol::table ret = lua["ret"];
-	EXPECT_TRUE(ret[1].get_type() == sol::type::string);
-	EXPECT_TRUE(ret[2].get_type() == sol::type::number);
-	EXPECT_TRUE(ret[1].get<std::string>() == c1->typeNames[c1->shapeType]);
-	EXPECT_TRUE(ret[2] == c1->cube.size);
+	sol::object type = lua["type"];
+	sol::object size = lua["size"];
+	EXPECT_TRUE(type.get_type() == sol::type::nil);
+	EXPECT_TRUE(size.get_type() == sol::type::number);
+	EXPECT_TRUE(size.as<double>() == c1->cube.size);
 
 	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
 	EXPECT_TRUE(c2->sphere.radius == 10);

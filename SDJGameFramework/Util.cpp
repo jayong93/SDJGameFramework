@@ -117,8 +117,9 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		}
 		return 0;
 	};
-	compoMt["Get"] = [&, selfCheck](sol::table self, sol::object arg) -> sol::object
+	compoMt["Get"] = [&, selfCheck](sol::table self, sol::object arg) -> sol::variadic_results
 	{
+		sol::variadic_results vr;
 		auto handle = selfCheck(self);
 		if (CM.Get(handle))
 		{
@@ -135,21 +136,20 @@ static void LuaComponentInitialize(sol::state_view& lua)
 						std::string name = argTable[i];
 						sol::protected_function fn = get[name];
 						if (fn.valid())
-							t[i] = fn(handle);
+							vr.emplace_back(fn(handle));
 						else
-							t[i] = sol::nil;
+							vr.emplace_back(sol::nil);
 					}
 					else
-						t[i] = sol::nil;
+						vr.emplace_back(sol::nil);
 				}
-				return t;
 			}
 			else if (arg.is<std::string>())
 			{
-				return get[arg](handle);
+				vr.emplace_back(get[arg](handle));
 			}
 		}
-		return sol::nil;
+		return vr;
 	};
 	compoMt["Set"] = [&, selfCheck](sol::table self, sol::object arg)
 	{
