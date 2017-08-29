@@ -24,19 +24,19 @@ void RenderSystem::Render()
 			switch (s.shapeType)
 			{
 				case Shape::CUBE:
-					glutWireCube(s.drawParam[0]);
+					glutWireCube(s.cube.size);
 					break;
 				case Shape::SPHERE:
-					glutWireSphere(s.drawParam[0], s.drawParam[1], s.drawParam[2]);
+					glutWireSphere(s.sphere.radius, s.sphere.slice, s.sphere.stack);
 					break;
 				case Shape::CONE:
-					glutWireCone(s.drawParam[0], s.drawParam[1], s.drawParam[2], s.drawParam[3]);
+					glutWireCone(s.cone.base, s.cone.height, s.cone.slice, s.cone.stack);
 					break;
 				case Shape::TORUS:
-					glutWireTorus(s.drawParam[0], s.drawParam[1], s.drawParam[2], s.drawParam[3]);
+					glutWireTorus(s.torus.innerRadius, s.torus.outerRadius, s.torus.side, s.torus.ring);
 					break;
 				case Shape::TEAPOT:
-					glutWireTeapot(s.drawParam[0]);
+					glutWireTeapot(s.teapot.size);
 					break;
 			}
 		}

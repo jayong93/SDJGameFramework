@@ -281,43 +281,31 @@ obj1:MoveTo(3,4,5)
 	EXPECT_TRUE(lua["ret"].get<bool>());
 }
 
-TEST_F(LuaTestFixture, ControlComponentViaMessage)
-{
-	auto& lua = FW.lua;
-	auto c1 = CM.GetBy<Shape>(compo1);
-	auto c2 = CM.GetBy<Shape>(compo2);
-
-	lua.safe_script(R"(
-obj1 = Object.Get(1)
-obj1:SendMsg{"CHANGE_SHAPE",type="sphere",radius=5,slice=4,stack=3}
-Object.Get("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
-)", errFn);
-
-	EXPECT_TRUE(c1->shapeType == Shape::SPHERE);
-	EXPECT_TRUE(c2->shapeType == Shape::CUBE);
-	EXPECT_TRUE(c1->drawParam[0] == 5 && c1->drawParam[1] == 4 && c1->drawParam[2] == 3);
-	EXPECT_TRUE(c2->drawParam[0] == 2);
-}
-
 TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 {
 	auto& lua = FW.lua;
 	Shape* c1 = CM.GetBy<Shape>(OM.Get(obj1)->compoList[0]);
 	Shape* c2 = CM.GetBy<Shape>(OM.Get(obj2)->compoList[0]);
 	c1->shapeType = Shape::CUBE;
-	c1->drawParam[0] = 4;
+	c1->cube.size = 4;
 
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Shape")
-ret = compo1:Get{"type","size"}
+ret = compo1:Get{"type","size_cube"}
+Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", radius=10, slice_sphere=20, stack_sphere=30}
 )", errFn);
 
 	sol::table ret = lua["ret"];
 	EXPECT_TRUE(ret[1].get_type() == sol::type::string);
 	EXPECT_TRUE(ret[2].get_type() == sol::type::number);
-	EXPECT_TRUE(ret[1].get<unsigned>() == c1->shapeType);
-	EXPECT_TRUE(ret[2] == c1->drawParam[0]);
+	EXPECT_TRUE(ret[1].get<std::string>() == c1->typeNames[c1->shapeType]);
+	EXPECT_TRUE(ret[2] == c1->cube.size);
+
+	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
+	EXPECT_TRUE(c2->sphere.radius == 10);
+	EXPECT_TRUE(c2->sphere.slice == 20);
+	EXPECT_TRUE(c2->sphere.stack == 30);
 }
 
 struct MainFrameworkTestFixture : public testing::Test

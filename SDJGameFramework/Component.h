@@ -26,12 +26,21 @@ struct Shape : public Component
 	virtual ~Shape() {}
 
 	enum Type { NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT } shapeType = NONE;
-	double drawParam[4] = { 0.f, 0.f, 0.f, 0.f };
+	union
+	{
+		double param[4] = { 0.,0.,0.,0. };
+		struct { double size; } cube;
+		struct { double size; } teapot;
+		struct { double radius, slice, stack; } sphere;
+		struct { double innerRadius, outerRadius, side, ring; } torus;
+		struct { double base, height, slice, stack; } cone;
+	};
 	Vector3D color;
 
+	static const char* typeNames[];
 	const static StringHashMap<unsigned> typeMap;
-	static MessageMap InitMsgMap();
-	static void GetSetFunc();
+	static MessageMap InitMsgMap() { return MessageMap(); }
+	static void InitGetSetFunc();
 
 private:
 	static StringHashMap<unsigned> InitTypeMap();
@@ -42,7 +51,7 @@ struct LuaComponent : public Component
 	virtual ~LuaComponent();
 	bool SetScript(const std::string& name);
 	virtual void SendMsg(sol::object& args);
-	static void GetSetFunc() {}
+	static void InitGetSetFunc() {}
 	static MessageMap InitMsgMap() { return MessageMap(); }
 
 	sol::environment env;

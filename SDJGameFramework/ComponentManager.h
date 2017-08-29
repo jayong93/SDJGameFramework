@@ -178,5 +178,5 @@ inline void ComponentManager::RegisterComponentList(T& list)
 	assert(!con && "this type registered already");
 	compoMap[numType] = &list;
 	RegisterComponentList_(type, numType, T::CompoType::InitMsgMap());
-	T::CompoType::GetSetFunc();
+	T::CompoType::InitGetSetFunc();
 }

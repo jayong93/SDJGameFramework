@@ -27,65 +27,65 @@ void Component::SendMsg(sol::object& args)
 }
 
 const StringHashMap<unsigned> Shape::typeMap = Shape::InitTypeMap();
+const char* Shape::typeNames[] = { "none", "cube", "sphere", "cone", "torus", "teapot" };
 
-MessageMap Shape::InitMsgMap()
-{
-	MessageMap map;
-
-	map["CHANGE_SHAPE"] = MSG_HANDLER(c, t)
-	{
-		Shape& compo = *static_cast<Shape*>(c);
-
-		sol::object type = t["type"];
-		if (!type.valid()) return false;
-
-		auto it = Shape::typeMap.find(type.as<std::string>());
-		if (it == Shape::typeMap.end()) return false;
-
-		compo.shapeType = Type(it->second);
-
-		sol::object args[4];
-		auto tieObj = sol::tie(args[0], args[1], args[2], args[3]);
-		switch (it->second)
-		{
-			case 1:
-				tieObj = t.get<sol::object, sol::object, sol::object, sol::object>("size", "nil", "nil", "nil");
-				break;
-			case 2:
-				tieObj = t.get<sol::object, sol::object, sol::object, sol::object>("radius", "slice", "stack", "nil");
-				break;
-			case 3:
-				tieObj = t.get<sol::object, sol::object, sol::object, sol::object>("base", "height", "slice", "stack");
-				break;
-			case 4:
-				tieObj = t.get<sol::object, sol::object, sol::object, sol::object>("innerRadius", "outerRadius", "side", "ring");
-				break;
-		}
-		for (int i = 0; i < 4; ++i)
-		{
-			if (args[i].valid())
-				compo.drawParam[i] = args[i].as<double>();
-		}
-
-		return true;
-	};
-
-	return map;
-}
-
-void Shape::GetSetFunc()
+void Shape::InitGetSetFunc()
 {
 	START_GETSET_DEF(Shape);
-	SIMPLE_GETSET_DEF(size, drawParam[0]);
+	SIMPLE_GETSET_DEF(radius, sphere.radius);
+	SIMPLE_GETSET_DEF(base, cone.base);
+	SIMPLE_GETSET_DEF(height, cone.height);
+	SIMPLE_GETSET_DEF(side, torus.side);
+	SIMPLE_GETSET_DEF(ring, torus.ring);
+	SIMPLE_GETSET_DEF(inner_radius, torus.innerRadius);
+	SIMPLE_GETSET_DEF(outer_radius, torus.outerRadius);
+	SIMPLE_GETSET_DEF(size_cube, cube.size);
+	SIMPLE_GETSET_DEF(size_teapot, teapot.size);
+	SIMPLE_GETSET_DEF(slice_sphere, sphere.slice);
+	SIMPLE_GETSET_DEF(slice_cone, cone.slice);
+	SIMPLE_GETSET_DEF(stack_sphere, sphere.stack);
+	SIMPLE_GETSET_DEF(stack_cone, cone.stack);
+	START_COMPLEX_GET_DEF(type, obj);
+	{
+		return typeNames[obj->shapeType];
+	}
+	END_COMPLEX_GET_DEF();
+	START_COMPLEX_SET_DEF(type, obj, val);
+	{
+		if (val.is<std::string>())
+		{
+			auto it = obj->typeMap.find(val.as<std::string>());
+			if (it != obj->typeMap.end())
+				obj->shapeType = Shape::Type(it->second);
+		}
+	}
+	END_COMPLEX_SET_DEF();
+	START_COMPLEX_GET_DEF(color, obj);
+	{
+		return std::make_tuple(obj->color.x, obj->color.y, obj->color.z);
+	}
+	END_COMPLEX_GET_DEF();
+	START_COMPLEX_SET_DEF(color, obj, val);
+	{
+		sol::table v = val;
+		if (v.valid())
+		{
+			for (int i = 0; i < 3; ++i)
+			{
+				if (v[i + 1].get_type() == sol::type::number)
+					obj->color.data[i] = v[i + 1].get<double>();
+			}
+		}
+	}
+	END_COMPLEX_SET_DEF();
 	END_GETSET_DEF();
 }
 
 StringHashMap<unsigned> Shape::InitTypeMap()
 {
 	std::unordered_map<std::string, unsigned> map;
-	const char* typeNames[] = { "cube", "sphere", "cone", "torus", "teapot" };
 
-	int i = 1;
+	int i = 0;
 	for (auto n : typeNames)
 	{
 		map[n] = i++;
