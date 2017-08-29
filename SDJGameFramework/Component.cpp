@@ -9,7 +9,7 @@
 
 Component::~Component() {}
 
-void Component::SendMsg(sol::object& args) 
+void Component::SendMsg(sol::object& args)
 {
 	auto msgMap = MM.GetMsgMap(CM.Type(handle));
 	if (msgMap)
@@ -76,7 +76,7 @@ MessageMap Shape::InitMsgMap()
 void Shape::GetSetFunc()
 {
 	START_GETSET_DEF(Shape);
-	SIMPLE_GETSET_DEF(test, test);
+	SIMPLE_GETSET_DEF(size, drawParam[0]);
 	END_GETSET_DEF();
 }
 

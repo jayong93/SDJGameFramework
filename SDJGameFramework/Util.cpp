@@ -63,6 +63,18 @@ static void LuaObjectInitialize(sol::state_view& lua)
 			}
 		}
 	};
+	objectMt["GetComponent"] = [&](sol::table self, std::string type) -> sol::object
+	{
+		if (Object* obj = OM.Get(selfCheck(self)))
+		{
+			auto compo = obj->GetComponent(type);
+			if (CM.Get(compo))
+			{
+				return lua["Component"]["Get"](compo.ToUInt64());
+			}
+		}
+		return sol::nil;
+	};
 	lua["Object"]["Get"] = [&, objectMt](sol::object args) -> sol::object {
 		uint64_t handle = 0;
 
@@ -94,7 +106,9 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	compoTable.create_named("get");
 	compoTable.create_named("set");
 
+	// Get/Set 함수 설정
 	sol::table compoMt = lua.create_table();
+	compoMt["__index"] = compoMt;
 	auto selfCheck = [](sol::table self) -> uint64_t {
 		if (self.valid())
 		{
@@ -108,21 +122,55 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		auto handle = selfCheck(self);
 		if (CM.Get(handle))
 		{
-			sol::table argTable = arg.as<sol::table>();
-			if (argTable.valid())
+			auto type = CM.Type(handle);
+			sol::table get = lua["Component"]["get"][type];
+			if (arg.is<sol::table>())
 			{
+				sol::table argTable = arg.as<sol::table>();
 				sol::table t = lua.create_table();
-				auto type = CM.Type(handle);
-				for (int i = 0; i < argTable.size(); ++i)
+				for (int i = 1; i <= argTable.size(); ++i)
 				{
 					if (argTable[i].get_type() == sol::type::string)
-						t.add(lua["Component"]["get"][type][argTable[i]](handle));
+					{
+						std::string name = argTable[i];
+						sol::protected_function fn = get[name];
+						if (fn.valid())
+							t[i] = fn(handle);
+						else
+							t[i] = sol::nil;
+					}
 					else
-						t.add(sol::nil);
+						t[i] = sol::nil;
 				}
-				return lua["unpack"](t);
+				return t;
 			}
-			else return sol::nil;
+			else if (arg.is<std::string>())
+			{
+				return get[arg](handle);
+			}
+		}
+		return sol::nil;
+	};
+	compoMt["Set"] = [&, selfCheck](sol::table self, sol::object arg)
+	{
+		auto handle = selfCheck(self);
+		if (CM.Get(handle))
+		{
+			auto type = CM.Type(handle);
+			sol::table set = lua["Component"]["set"][type];
+			if (arg.is<sol::table>())
+			{
+				sol::table argTable = arg.as<sol::table>();
+				for (auto& i : argTable)
+				{
+					if (i.first.is<std::string>())
+					{
+						sol::protected_function fn = set[i.first];
+						if (fn.valid())
+							set[i.first](handle, i.second);
+					}
+				}
+			}
 		}
 	};
 	compoTable["Get"] = [&, compoMt](uint64_t handle) -> sol::object

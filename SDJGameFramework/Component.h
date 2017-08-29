@@ -28,7 +28,6 @@ struct Shape : public Component
 	enum Type { NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT } shapeType = NONE;
 	double drawParam[4] = { 0.f, 0.f, 0.f, 0.f };
 	Vector3D color;
-	int test;
 
 	const static StringHashMap<unsigned> typeMap;
 	static MessageMap InitMsgMap();

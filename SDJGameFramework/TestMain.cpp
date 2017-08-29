@@ -310,14 +310,14 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Shape")
-type, param0 = compo1:Get{"type","size"}
-Object.Get("obj2"):GetComponent("Shape"):Set{"type"="teapot", "size" = 2}
+ret = compo1:Get{"type","size"}
 )", errFn);
 
-	EXPECT_TRUE(lua["type"].get<unsigned>() == c1->shapeType);
-	EXPECT_TRUE(lua["param0"] == c1->drawParam[0]);
-	EXPECT_TRUE(c2->shapeType == Shape::TEAPOT);
-	EXPECT_TRUE(c2->drawParam[0] == 2);
+	sol::table ret = lua["ret"];
+	EXPECT_TRUE(ret[1].get_type() == sol::type::string);
+	EXPECT_TRUE(ret[2].get_type() == sol::type::number);
+	EXPECT_TRUE(ret[1].get<unsigned>() == c1->shapeType);
+	EXPECT_TRUE(ret[2] == c1->drawParam[0]);
 }
 
 struct MainFrameworkTestFixture : public testing::Test
