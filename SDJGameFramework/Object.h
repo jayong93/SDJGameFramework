@@ -17,7 +17,7 @@ struct Object
 	ObjectHandle handle;
 	std::vector<ComponentHandle> compoList;
 	std::map<uint64_t, size_t> compoIdxMap;
-	std::set<size_t> compoTypeSet;
+	std::map<size_t, ComponentHandle> compoTypeMap;
 	std::string name;
 
 	Vector3D position;
@@ -28,6 +28,10 @@ struct Object
 	bool HasComponent(size_t type) const;
 	template <typename T>
 	bool HasComponent() const;
+	template<typename T>
+	ComponentHandle GetComponent();
+	ComponentHandle GetComponent(const std::string& type);
+	ComponentHandle GetComponent(size_t type);
 
 	void SendMsg(sol::object msg);
 };
@@ -35,5 +39,11 @@ struct Object
 template<typename T>
 inline bool Object::HasComponent() const
 {
-	HasComponent(GetTypeHash<T>());
+	return HasComponent(GetTypeHash<T>());
+}
+
+template<typename T>
+inline ComponentHandle Object::GetComponent()
+{
+	return GetComponent(GetTypeHash<T>());
 }

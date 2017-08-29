@@ -226,6 +226,7 @@ TEST_F(ComponentTestFixture, Type)
 struct LuaTestFixture : public testing::Test
 {
 	ObjectHandle obj1, obj2;
+	ComponentHandle compo1, compo2;
 	function<sol::protected_function_result(lua_State*, sol::protected_function_result)> errFn;
 
 	void SetUp()
@@ -238,8 +239,8 @@ struct LuaTestFixture : public testing::Test
 		FW.Init();
 		obj1 = OM.Add("obj1");
 		obj2 = OM.Add("obj2");
-		CM.Add<Shape>(obj1);
-		CM.Add<Shape>(obj2);
+		compo1 = CM.Add<Shape>(obj1);
+		compo2 = CM.Add<Shape>(obj2);
 	}
 
 	void TearDown()
@@ -283,21 +284,40 @@ obj1:MoveTo(3,4,5)
 TEST_F(LuaTestFixture, ControlComponentViaMessage)
 {
 	auto& lua = FW.lua;
-	auto hc1 = OM.Get(obj1)->compoList[0];
-	auto hc2 = OM.Get(obj2)->compoList[0];
-	auto compo1 = CM.GetBy<Shape>(hc1);
-	auto compo2 = CM.GetBy<Shape>(hc2);
+	auto c1 = CM.GetBy<Shape>(compo1);
+	auto c2 = CM.GetBy<Shape>(compo2);
 
 	lua.safe_script(R"(
-obj1 = Object.Get("obj1")
+obj1 = Object.Get(1)
 obj1:SendMsg{"CHANGE_SHAPE",type="sphere",radius=5,slice=4,stack=3}
 Object.Get("obj2"):SendMsg{"CHANGE_SHAPE",type="cube",size=2}
 )", errFn);
 
-	EXPECT_TRUE(compo1->shapeType == Shape::SPHERE);
-	EXPECT_TRUE(compo2->shapeType == Shape::CUBE);
-	EXPECT_TRUE(compo1->drawParam[0] == 5 && compo1->drawParam[1] == 4 && compo1->drawParam[2] == 3);
-	EXPECT_TRUE(compo2->drawParam[0] == 2);
+	EXPECT_TRUE(c1->shapeType == Shape::SPHERE);
+	EXPECT_TRUE(c2->shapeType == Shape::CUBE);
+	EXPECT_TRUE(c1->drawParam[0] == 5 && c1->drawParam[1] == 4 && c1->drawParam[2] == 3);
+	EXPECT_TRUE(c2->drawParam[0] == 2);
+}
+
+TEST_F(LuaTestFixture, ControlComponentViaGetSet)
+{
+	auto& lua = FW.lua;
+	Shape* c1 = CM.GetBy<Shape>(OM.Get(obj1)->compoList[0]);
+	Shape* c2 = CM.GetBy<Shape>(OM.Get(obj2)->compoList[0]);
+	c1->shapeType = Shape::CUBE;
+	c1->drawParam[0] = 4;
+
+	lua.safe_script(R"(
+obj1 = Object.Get("obj1")
+compo1 = obj1:GetComponent("Shape")
+type, param0 = compo1:Get{"type","size"}
+Object.Get("obj2"):GetComponent("Shape"):Set{"type"="teapot", "size" = 2}
+)", errFn);
+
+	EXPECT_TRUE(lua["type"].get<unsigned>() == c1->shapeType);
+	EXPECT_TRUE(lua["param0"] == c1->drawParam[0]);
+	EXPECT_TRUE(c2->shapeType == Shape::TEAPOT);
+	EXPECT_TRUE(c2->drawParam[0] == 2);
 }
 
 struct MainFrameworkTestFixture : public testing::Test
@@ -342,7 +362,15 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 	instances.for_each([&i](auto& a, auto& b) {i++; });
 	EXPECT_TRUE(i == 4);
 
+	FW.lua["a"] = 10;
 	FW.MainLoop();
+
+	EXPECT_TRUE(FW.lua["a"].get<int>() == 10);
+	for (auto& o : objArr)
+	{
+		LuaComponent* compo = CM.GetBy<LuaComponent>(o->GetComponent("Plus"));
+		EXPECT_TRUE(compo->env["a"] == 30);
+	}
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -350,5 +378,4 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
 	}
 }
-
 #endif

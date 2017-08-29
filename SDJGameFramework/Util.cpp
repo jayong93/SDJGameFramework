@@ -93,6 +93,29 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	compoTable.create_named("instance");
 	compoTable.create_named("get");
 	compoTable.create_named("set");
+
+	sol::table compoMt = lua.create_table();
+	auto selfCheck = [](sol::table self) -> uint64_t {
+		if (self.valid())
+		{
+			uint64_t handle = self["handle"];
+			return handle;
+		}
+		return 0;
+	};
+	compoMt["Get"] = [selfCheck](sol::table self, sol::object arg)
+	{
+		if (CM.Get(selfCheck(self)))
+		{
+		}
+	};
+	compoTable["Get"] = [&, compoMt](uint64_t handle) -> sol::object
+	{
+		auto type = CM.Type(handle);
+		sol::table table = lua.create_table_with("handle", handle, "type", type);
+		table[sol::metatable_key] = compoMt;
+		return table;
+	};
 }
 
 static void LuaGlobalInitialize(sol::state_view& lua)

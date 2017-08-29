@@ -11,9 +11,9 @@ bool Object::AddComponent(ComponentHandle handle)
 	if (compo->owner) return false;
 
 	auto type = CM.Type(handle);
-	auto it = compoTypeSet.find(type);
-	if (it == compoTypeSet.end())
-		compoTypeSet.emplace(type);
+	auto it = compoTypeMap.find(type);
+	if (it == compoTypeMap.end())
+		compoTypeMap.emplace(type, handle);
 	else return false;
 
 	compoList.emplace_back(handle);
@@ -37,9 +37,9 @@ bool Object::DelComponent(ComponentHandle handle)
 		compoList.pop_back();
 		compoIdxMap.erase(it);
 
-		auto it2 = compoTypeSet.find(CM.Type(handle));
-		if (it2 != compoTypeSet.end())
-			compoTypeSet.erase(it2);
+		auto it2 = compoTypeMap.find(CM.Type(handle));
+		if (it2 != compoTypeMap.end())
+			compoTypeMap.erase(it2);
 
 		CM.Delete(handle);
 
@@ -50,10 +50,23 @@ bool Object::DelComponent(ComponentHandle handle)
 
 bool Object::HasComponent(size_t type) const
 {
-	auto it = compoTypeSet.find(type);
-	if (it != compoTypeSet.end())
+	auto it = compoTypeMap.find(type);
+	if (it != compoTypeMap.end())
 		return true;
 	return false;
+}
+
+ComponentHandle Object::GetComponent(size_t type)
+{
+	auto it = compoTypeMap.find(type);
+	if (it != compoTypeMap.end())
+		return it->second;
+	return ComponentHandle();
+}
+
+ComponentHandle Object::GetComponent(const std::string & type)
+{
+	return GetComponent(GetHash(type));
 }
 
 void Object::SendMsg(sol::object msg)

@@ -61,7 +61,6 @@ void GameLogic::Update(double time)
 			sol::protected_function fn = instance["Update"];
 			if (fn)
 			{
-				sol::set_environment(c.env, fn);
 				auto ret = fn(time);
 				if (!ret.valid())
 					perror(ret.get<string>().c_str());

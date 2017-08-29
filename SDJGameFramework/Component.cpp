@@ -110,6 +110,13 @@ bool LuaComponent::SetScript(const std::string & name)
 	{
 		env = sol::environment{ lua, sol::create, lua.globals() };
 		sol::set_environment(env, fn); fn();
+		env.for_each([this](sol::object k, sol::object v)
+		{
+			if (v.is<sol::protected_function>())
+			{
+				sol::set_environment(this->env, v);
+			}
+		});
 		env["owner"] = lua["Object"]["Get"](handle.ToUInt64());
 		lua["Component"]["instance"][handle.ToUInt64()] = env.as<sol::table>();
 		return true;
