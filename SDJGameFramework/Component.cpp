@@ -63,7 +63,7 @@ void Shape::InitGetSetFunc()
 	START_MULTI_GET_DEF(color, obj, vr);
 	{
 		for (int i = 0; i < 3; ++i)
-			vr.emplace_back(lua, sol::in_place_type<double>, obj->color.data[i]);
+			vr.emplace_back(lua, sol::in_place_type<float>, obj->color.data[i]);
 	}
 	END_MULTI_GET_DEF();
 	START_COMPLEX_SET_DEF(color, obj, val);
@@ -73,7 +73,7 @@ void Shape::InitGetSetFunc()
 		{
 			for (int i = 0; i < 3; ++i)
 			{
-				sol::optional<double> val = v[i + 1];
+				sol::optional<float> val = v[i + 1];
 				if (val)
 					obj->color.data[i] = val.value();
 			}

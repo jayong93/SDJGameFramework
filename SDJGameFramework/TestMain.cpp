@@ -271,7 +271,7 @@ obj1:MoveTo(3,4,5)
 	EXPECT_TRUE(obj1Ptr->position == Vector3D(4, 4, 6));
 
 	// Position Å×½ºÆ®
-	double x, y, z;
+	float x, y, z;
 	sol::tie(x, y, z) = lua["obj1"]["Position"](lua["obj1"]);
 	EXPECT_TRUE(x == 4.);
 	EXPECT_TRUE(y == 4.);
@@ -332,7 +332,7 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	Shape* c2 = CM.GetBy<Shape>(OM.Get(obj2)->compoList[0]);
 	c1->shapeType = Shape::CUBE;
 	c1->cube.size = 4;
-	c1->color.Set(0.4, 0.4, 0.2);
+	c1->color.Set(0.4f, 0.4f, 0.2f);
 
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
@@ -342,14 +342,14 @@ Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sph
 )", errFn);
 
 	{
-		sol::optional<double> r = lua["r"];
-		sol::optional<double> g = lua["g"];
-		sol::optional<double> b = lua["b"];
+		sol::optional<float> r = lua["r"];
+		sol::optional<float> g = lua["g"];
+		sol::optional<float> b = lua["b"];
 		sol::object size = lua["size"];
 		EXPECT_TRUE(r && g && b);
-		EXPECT_TRUE(r == 0.4 && g == 0.4 && b == 0.2);
+		EXPECT_TRUE(r == 0.4f && g == 0.4f && b == 0.2f);
 		EXPECT_TRUE(size.get_type() == sol::type::number);
-		EXPECT_TRUE(size.as<double>() == c1->cube.size);
+		EXPECT_TRUE(size.as<float>() == c1->cube.size);
 
 		EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
 		EXPECT_TRUE(c2->sphere.radius == 10);
@@ -360,10 +360,10 @@ Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sph
 	{
 		c1->color.x = 0.5;
 		lua.safe_script(R"(r, size = compo1:Get{"color", "cubeSize"})");
-		sol::optional<double> r = lua["r"];
+		sol::optional<float> r = lua["r"];
 		EXPECT_TRUE(r && r.value() == 0.5);
 		sol::object size = lua["size"];
-		EXPECT_TRUE(size.as<double>() == c1->cube.size);
+		EXPECT_TRUE(size.as<float>() == c1->cube.size);
 	}
 }
 

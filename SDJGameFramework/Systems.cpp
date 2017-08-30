@@ -21,6 +21,7 @@ void RenderSystem::Render()
 		glPushMatrix();
 		{
 			glTranslatef(owner->position.x, owner->position.y, owner->position.z);
+			glColor3fv(s.color);
 			switch (s.shapeType)
 			{
 				case Shape::CUBE:
