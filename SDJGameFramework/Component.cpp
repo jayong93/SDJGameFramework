@@ -60,11 +60,12 @@ void Shape::InitGetSetFunc()
 		}
 	}
 	END_COMPLEX_SET_DEF();
-	START_COMPLEX_GET_DEF(color, obj);
+	START_MULTI_GET_DEF(color, obj, vr);
 	{
-		return std::make_tuple(obj->color.x, obj->color.y, obj->color.z);
+		for (int i = 0; i < 3; ++i)
+			vr.add(obj->color.data[i]);
 	}
-	END_COMPLEX_GET_DEF();
+	END_MULTI_GET_DEF();
 	START_COMPLEX_SET_DEF(color, obj, val);
 	{
 		sol::table v = val;
@@ -72,8 +73,9 @@ void Shape::InitGetSetFunc()
 		{
 			for (int i = 0; i < 3; ++i)
 			{
-				if (v[i + 1].get_type() == sol::type::number)
-					obj->color.data[i] = v[i + 1].get<double>();
+				sol::optional<double> val = v[i + 1];
+				if (val)
+					obj->color.data[i] = val.value();
 			}
 		}
 	}

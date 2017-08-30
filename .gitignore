@@ -28,3 +28,5 @@
 *.lastbuildstate
 */unsuccessfulbuild
 .vs/*
+*.nativecodeanalysis.xml
+*.codeanalysis*

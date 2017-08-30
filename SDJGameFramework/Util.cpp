@@ -136,7 +136,22 @@ static void LuaComponentInitialize(sol::state_view& lua)
 						std::string name = argTable[i];
 						sol::protected_function fn = get[name];
 						if (fn.valid())
-							vr.emplace_back(fn(handle));
+						{
+							sol::object ret = fn(handle);
+							if (ret.is<sol::table>())
+							{
+								sol::table t = ret;
+								if (i < argTable.size())
+									vr.emplace_back(t[1]);
+								else
+								{
+									for (int j = 1; j <= t.size(); ++j)
+										vr.emplace_back(t[j]);
+								}
+							}
+							else
+								vr.emplace_back(ret);
+						}
 						else
 							vr.emplace_back(sol::nil);
 					}

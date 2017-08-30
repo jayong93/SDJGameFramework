@@ -332,17 +332,23 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	Shape* c2 = CM.GetBy<Shape>(OM.Get(obj2)->compoList[0]);
 	c1->shapeType = Shape::CUBE;
 	c1->cube.size = 4;
+	c1->color.Set(0.4, 0.4, 0.2);
 
 	lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Shape")
-type, size = compo1:Get{"error","cubeSize"}
+size, r, g, b = compo1:Get{"cubeSize","color"}
 Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sphereSlice=20, sphereStack=30}
 )", errFn);
 
-	sol::object type = lua["type"];
+	sol::optional<double> r = lua["r"];
+	sol::optional<double> g = lua["g"];
+	sol::optional<double> b = lua["b"];
 	sol::object size = lua["size"];
-	EXPECT_TRUE(type.get_type() == sol::type::nil);
+	EXPECT_TRUE(r && g && b);
+	if (r) cout << r.value() << endl;
+	if (g) cout << g.value() << endl;
+	if (b) cout << b.value() << endl;
 	EXPECT_TRUE(size.get_type() == sol::type::number);
 	EXPECT_TRUE(size.as<double>() == c1->cube.size);
 
