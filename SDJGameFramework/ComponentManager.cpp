@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "ComponentManager.h"
-#include "ObjectManager.h"
 #include "Framework.h"
-#include "MessageManager.h"
 #include "ObjectManager.h"
+#include "MessageManager.h"
 
 Component * ComponentManager::Get(const ComponentHandle & handle)
 {

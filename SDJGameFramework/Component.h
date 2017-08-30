@@ -21,6 +21,20 @@ struct Component
 	ComponentHandle handle;
 };
 
+/*
+컴포넌트 공통
+InitMsgMap() - 처리할 메세지와 핸들러를 묶어놓은 MessageMap을 초기화
+InitGetSetFunc() - 루아에서 컴포넌트의 변수로 접근할 이름과 핸들러를 묶음
+*/
+
+/*
+GLUT에서 제공하는 기본 3차원 도형들을 나타내는 컴포넌트
+변수		-	설명		-	루아에서의 변수 이름
+shapeType - 도형 종류 - "type"
+param - GLUT 그리기 함수의 인자들 - "typeParam" (ex. cubeSize, torusInnerRadius)
+color - 도형의 색 - "color"
+typeNames, typeMap - 타입 enum과 string의 변환 데이터
+*/
 struct Shape : public Component
 {
 	virtual ~Shape() {}
@@ -46,6 +60,11 @@ private:
 	static StringHashMap<unsigned> InitTypeMap();
 };
 
+/*
+루아로 작성된 스크립트 컴포넌트
+env - 스크립트에서 접근할 환경 테이블. 전역 환경을 더럽히는걸 막는다.
+scriptName - 실제 컴포넌트 종류
+*/
 struct LuaComponent : public Component
 {
 	virtual ~LuaComponent();
