@@ -341,21 +341,30 @@ size, r, g, b = compo1:Get{"cubeSize","color"}
 Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sphereSlice=20, sphereStack=30}
 )", errFn);
 
-	sol::optional<double> r = lua["r"];
-	sol::optional<double> g = lua["g"];
-	sol::optional<double> b = lua["b"];
-	sol::object size = lua["size"];
-	EXPECT_TRUE(r && g && b);
-	if (r) cout << r.value() << endl;
-	if (g) cout << g.value() << endl;
-	if (b) cout << b.value() << endl;
-	EXPECT_TRUE(size.get_type() == sol::type::number);
-	EXPECT_TRUE(size.as<double>() == c1->cube.size);
+	{
+		sol::optional<double> r = lua["r"];
+		sol::optional<double> g = lua["g"];
+		sol::optional<double> b = lua["b"];
+		sol::object size = lua["size"];
+		EXPECT_TRUE(r && g && b);
+		EXPECT_TRUE(r == 0.4 && g == 0.4 && b == 0.2);
+		EXPECT_TRUE(size.get_type() == sol::type::number);
+		EXPECT_TRUE(size.as<double>() == c1->cube.size);
 
-	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
-	EXPECT_TRUE(c2->sphere.radius == 10);
-	EXPECT_TRUE(c2->sphere.slice == 20);
-	EXPECT_TRUE(c2->sphere.stack == 30);
+		EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
+		EXPECT_TRUE(c2->sphere.radius == 10);
+		EXPECT_TRUE(c2->sphere.slice == 20);
+		EXPECT_TRUE(c2->sphere.stack == 30);
+	}
+
+	{
+		c1->color.x = 0.5;
+		lua.safe_script(R"(r, size = compo1:Get{"color", "cubeSize"})");
+		sol::optional<double> r = lua["r"];
+		EXPECT_TRUE(r && r.value() == 0.5);
+		sol::object size = lua["size"];
+		EXPECT_TRUE(size.as<double>() == c1->cube.size);
+	}
 }
 
 struct MainFrameworkTestFixture : public testing::Test

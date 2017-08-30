@@ -48,8 +48,8 @@
 		[](uint64_t h, sol::this_state l) {\
 			sol::state_view lua(l);\
 			auto objVar = CM.GetBy<TYPE>(h);\
-			sol::table t = lua.create_table();\
-			sol::table& listVar = t;\
+			sol::variadic_results t;\
+			sol::variadic_results& listVar=t;\
 			if(objVar) {0
 #define END_MULTI_GET_DEF_() \
 			}\

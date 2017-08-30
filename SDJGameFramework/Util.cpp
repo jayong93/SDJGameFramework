@@ -128,7 +128,6 @@ static void LuaComponentInitialize(sol::state_view& lua)
 			if (arg.is<sol::table>())
 			{
 				sol::table argTable = arg.as<sol::table>();
-				sol::table t = lua.create_table();
 				for (int i = 1; i <= argTable.size(); ++i)
 				{
 					if (argTable[i].get_type() == sol::type::string)
@@ -137,16 +136,16 @@ static void LuaComponentInitialize(sol::state_view& lua)
 						sol::protected_function fn = get[name];
 						if (fn.valid())
 						{
-							sol::object ret = fn(handle);
-							if (ret.is<sol::table>())
+							sol::protected_function_result ret = fn(handle);
+							if (ret.return_count() > 1)
 							{
-								sol::table t = ret;
+								sol::variadic_args args = ret;
 								if (i < argTable.size())
-									vr.emplace_back(t[1]);
+									vr.emplace_back(args[0]);
 								else
 								{
-									for (int j = 1; j <= t.size(); ++j)
-										vr.emplace_back(t[j]);
+									for (auto& r : args)
+										vr.emplace_back(r);
 								}
 							}
 							else
