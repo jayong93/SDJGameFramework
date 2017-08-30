@@ -425,4 +425,28 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
 	}
 }
+
+TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
+{
+	FW.LoadScene("TestScene2.json");
+
+	auto obj1 = OM.GetByName("obj1");
+	ASSERT_TRUE(obj1);
+
+	auto shape1 = CM.GetBy<Shape>(obj1->GetComponent("Shape"));
+	ASSERT_TRUE(shape1);
+	EXPECT_TRUE(shape1->shapeType == Shape::Type::CUBE);
+	EXPECT_TRUE(shape1->cube.size == 5.f);
+	EXPECT_TRUE(shape1->color == Vector3D( 1.f,0.f,0.f ));
+
+	auto obj2 = OM.GetByName("obj4");
+	ASSERT_TRUE(obj2);
+
+	auto shape2 = CM.GetBy<Shape>(obj2->GetComponent("Shape"));
+	ASSERT_TRUE(shape2);
+	EXPECT_TRUE(shape2->shapeType == Shape::Type::SPHERE);
+	EXPECT_TRUE(shape2->sphere.radius == 3);
+	EXPECT_TRUE(shape2->sphere.slice == 20);
+	EXPECT_TRUE(shape2->sphere.stack == 20);
+}
 #endif

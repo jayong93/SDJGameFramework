@@ -42,12 +42,12 @@ struct Shape : public Component
 	enum Type { NONE, CUBE, SPHERE, CONE, TORUS, TEAPOT } shapeType = NONE;
 	union
 	{
-		double param[4] = { 0.,0.,0.,0. };
-		struct { double size; } cube;
-		struct { double size; } teapot;
-		struct { double radius, slice, stack; } sphere;
-		struct { double innerRadius, outerRadius, side, ring; } torus;
-		struct { double base, height, slice, stack; } cone;
+		float param[4] = { 0.,0.,0.,0. };
+		struct { float size; } cube;
+		struct { float size; } teapot;
+		struct { float radius, slice, stack; } sphere;
+		struct { float innerRadius, outerRadius, side, ring; } torus;
+		struct { float base, height, slice, stack; } cone;
 	};
 	Vector3D color;
 

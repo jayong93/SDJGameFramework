@@ -103,19 +103,56 @@ void Framework::LoadScene(const std::string & fileName)
 			for (int i = 0; i < 3; ++i)
 				pos.data[i] = posData[i].GetDouble();
 
-			auto hObj = OM.Add(data["name"].GetString(), pos);
+			const char* objName = data["name"].GetString();
+			auto hObj = OM.Add(objName, pos);
 
+			bool hasVar = data.HasMember("var");
 			auto& compoList = data["component"].GetArray();
 			for (auto& c : compoList)
 			{
 				auto compoName = c.GetString();
+				ComponentHandle compoHandle;
 				if (CM.IsRegistered(compoName))
-					CM.Add(compoName, hObj);
+					compoHandle = CM.Add(compoName, hObj);
 				else
-					CM.AddLuaComponent(c.GetString(), hObj);
+				{
+					compoHandle = CM.AddLuaComponent(c.GetString(), hObj);
+					if (!compoHandle)
+					{
+						fprintf(stderr, "Invalid Component %s On %s", compoName, objName);
+						continue;
+					}
+				}
+
+				if (hasVar && data["var"].HasMember(compoName))
+				{
+					sol::table args = lua.create_table();
+					auto varData = data["var"][compoName].GetObject();
+					for (auto& d : varData)
+					{
+						if (d.value.GetType() == rapidjson::Type::kNumberType)
+							args[d.name.GetString()] = d.value.GetFloat();
+						if (d.value.GetType() == rapidjson::Type::kStringType)
+							args[d.name.GetString()] = d.value.GetString();
+						if (d.value.GetType() == rapidjson::Type::kArrayType)
+						{
+							auto arr = d.value.GetArray();
+							sol::table aTable = lua.create_table();
+							for (auto& dArr : arr)
+							{
+								if (dArr.GetType() == rapidjson::Type::kNumberType)
+									aTable.add(dArr.GetFloat());
+								if (dArr.GetType() == rapidjson::Type::kStringType)
+									aTable.add(dArr.GetString());
+							}
+							args[d.name.GetString()] = aTable;
+						}
+					}
+					sol::table compo = lua["Component"]["Get"](compoHandle.ToUInt64());
+					compo["Set"](compo, args);
+				}
 			}
 		}
-
 	}
 }
 
