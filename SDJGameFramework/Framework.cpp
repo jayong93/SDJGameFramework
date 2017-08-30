@@ -10,7 +10,7 @@ void Framework::Init()
 {
 	// 시스템 초기화
 	LuaStateInitialize(lua);
-	
+
 	render = std::make_unique<RenderSystem>();
 	render->Init();
 	logic = std::make_unique<GameLogic>();
@@ -66,49 +66,56 @@ void Framework::LoadScene(const std::string & fileName)
 	if (doc.HasParseError()) return;
 
 	// Component 초기화
-	auto& compos = doc["component"];
-	if (compos.IsArray())
+	if (doc.HasMember("component"))
 	{
-		std::string compoName;
-		for (auto& c : compos.GetArray())
+		auto& compos = doc["component"];
+		if (compos.IsArray())
 		{
-			compoName = c.GetString();
-			std::string fullName = compoName; fullName += ".lua";
-			std::ifstream compoScript{ fullName };
-			if (compoScript.bad()) continue;
+			std::string compoName;
+			for (auto& c : compos.GetArray())
+			{
+				compoName = c.GetString();
+				std::string fullName = compoName; fullName += ".lua";
+				std::ifstream compoScript{ fullName };
+				if (compoScript.bad()) continue;
 
-			sol::protected_function fn = lua.load_file(fullName);
-			if (!fn.valid()) continue;
-			lua["Component"]["prototype"][compoName] = fn;
+				sol::protected_function fn = lua.load_file(fullName);
+				if (!fn.valid()) continue;
+				lua["Component"]["prototype"][compoName] = fn;
 
-			size_t type = GetHash(compoName);
-			lua["Component"]["get"][type] = lua.create_table();
-			lua["Component"]["set"][type] = lua.create_table();
+				size_t type = GetHash(compoName);
+				lua["Component"]["get"][type] = lua.create_table();
+				lua["Component"]["set"][type] = lua.create_table();
+			}
 		}
 	}
 
 	// Object 초기화
-	auto& objs = doc["object"];
-	for (auto& o : objs.GetArray())
+	if (doc.HasMember("object"))
 	{
-		auto& data = o.GetObject();
-
-		auto& posData = data["position"].GetArray();
-		Vector3D pos;
-		for (int i = 0; i < 3; ++i)
-			pos.data[i] = posData[i].GetDouble();
-
-		auto hObj = OM.Add(data["name"].GetString(), pos);
-
-		auto& compoList = data["component"].GetArray();
-		for (auto& c : compoList)
+		auto& objs = doc["object"];
+		for (auto& o : objs.GetArray())
 		{
-			auto compoName = c.GetString();
-			if (CM.IsRegistered(compoName))
-				CM.Add(compoName, hObj);
-			else
-				CM.AddLuaComponent(c.GetString(), hObj);
+			auto& data = o.GetObject();
+
+			auto& posData = data["position"].GetArray();
+			Vector3D pos;
+			for (int i = 0; i < 3; ++i)
+				pos.data[i] = posData[i].GetDouble();
+
+			auto hObj = OM.Add(data["name"].GetString(), pos);
+
+			auto& compoList = data["component"].GetArray();
+			for (auto& c : compoList)
+			{
+				auto compoName = c.GetString();
+				if (CM.IsRegistered(compoName))
+					CM.Add(compoName, hObj);
+				else
+					CM.AddLuaComponent(c.GetString(), hObj);
+			}
 		}
+
 	}
 }
 
