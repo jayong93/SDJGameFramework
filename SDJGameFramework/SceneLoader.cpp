@@ -14,11 +14,11 @@ void SceneLoader::LoadScene(const std::string file, sol::state_view& lua)
 	doc.ParseStream(isw);
 	if (doc.HasParseError()) return;
 
-	LoadComponent(doc, lua);
+	LoadComponentScript(doc, lua);
 	LoadObject(doc, lua);
 }
 
-void SetArgsInTable(sol::table& args, const GenericValue<UTF8<>>& d)
+static void SetArgsInTable(sol::table& args, const GenericValue<UTF8<>>& d)
 {
 	switch (d.GetType())
 	{
@@ -31,7 +31,7 @@ void SetArgsInTable(sol::table& args, const GenericValue<UTF8<>>& d)
 	}
 }
 
-void SetNamedArgsInTable(sol::table& args, const std::string& name, const GenericValue<UTF8<>>& d)
+static void SetNamedArgsInTable(sol::table& args, const std::string& name, const GenericValue<UTF8<>>& d)
 {
 	sol::state_view lua(args.lua_state());
 	switch (d.GetType())
@@ -70,41 +70,12 @@ void SceneLoader::LoadObject(rapidjson::Document & scene, sol::state_view& lua)
 			const char* objName = data["name"].GetString();
 			auto hObj = OM.Add(objName, pos);
 
-			bool hasVar = data.HasMember("var");
-			auto& compoList = data["component"].GetArray();
-			for (auto& c : compoList)
-			{
-				auto compoName = c.GetString();
-				ComponentHandle compoHandle;
-				if (CM.IsRegistered(compoName))
-					compoHandle = CM.Add(compoName, hObj);
-				else
-				{
-					compoHandle = CM.AddLuaComponent(c.GetString(), hObj);
-					if (!compoHandle)
-					{
-						fprintf(stderr, "Invalid Component %s On %s", compoName, objName);
-						continue;
-					}
-				}
-
-				if (hasVar && data["var"].HasMember(compoName))
-				{
-					sol::table args = lua.create_table();
-					auto varData = data["var"][compoName].GetObject();
-					for (auto& d : varData)
-					{
-						SetNamedArgsInTable(args, d.name.GetString(), d.value);
-					}
-					sol::table compo = lua["Component"]["Get"](compoHandle.ToUInt64());
-					compo["Set"](compo, args);
-				}
-			}
+			LoadComponentOfObject(data, hObj, lua);
 		}
 	}
 }
 
-void SceneLoader::LoadComponent(rapidjson::Document & scene, sol::state_view& lua)
+void SceneLoader::LoadComponentScript(rapidjson::Document & scene, sol::state_view& lua)
 {
 	if (scene.HasMember("component"))
 	{
@@ -127,6 +98,41 @@ void SceneLoader::LoadComponent(rapidjson::Document & scene, sol::state_view& lu
 				lua["Component"]["get"][type] = lua.create_table();
 				lua["Component"]["set"][type] = lua.create_table();
 			}
+		}
+	}
+}
+
+void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<false, rapidjson::GenericValue<rapidjson::UTF8<>>>& objData, ObjectHandle obj, sol::state_view & lua)
+{
+	bool hasVar = objData.HasMember("var");
+	auto& compoList = objData["component"].GetArray();
+	const std::string& objName = OM.Get(obj)->name;
+	for (auto& c : compoList)
+	{
+		auto compoName = c.GetString();
+		ComponentHandle compoHandle;
+		if (CM.IsRegistered(compoName))
+			compoHandle = CM.Add(compoName, obj);
+		else
+		{
+			compoHandle = CM.AddLuaComponent(c.GetString(), obj);
+			if (!compoHandle)
+			{
+				fprintf(stderr, "Invalid Component %s On %s", compoName, objName.c_str());
+				continue;
+			}
+		}
+
+		if (hasVar && objData["var"].HasMember(compoName))
+		{
+			sol::table args = lua.create_table();
+			auto varData = objData["var"][compoName].GetObject();
+			for (auto& d : varData)
+			{
+				SetNamedArgsInTable(args, d.name.GetString(), d.value);
+			}
+			sol::table compo = lua["Component"]["Get"](compoHandle.ToUInt64());
+			compo["Set"](compo, args);
 		}
 	}
 }
