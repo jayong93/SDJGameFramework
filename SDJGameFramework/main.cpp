@@ -42,7 +42,7 @@ void Reshape(int w, int h)
 
 void FpsUpdate(int val)
 {
-	auto fps = 1/FW.timer.GetFPS();
+	auto fps = 1/(FW.GetTimer().GetFPS());
 	char titleWithFPS[40];
 	snprintf(titleWithFPS, sizeof(titleWithFPS), "%s(%.1lffps)", WINDOW_TITLE, fps);
 	glutSetWindowTitle(titleWithFPS);
