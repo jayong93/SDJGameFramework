@@ -31,18 +31,17 @@ void Framework::Render()
 void Framework::MainLoop()
 {
 	double timeElapsed = timer.GetElapsedTime();
-	double limitedTime = (1 / limitedFrame);
 #ifdef SDJ_TEST_BUILD
 	timer.UpdateTimePoint();
 	Update(timeElapsed);
 #else
-	if (timeElapsed >= limitedTime)
+	if (limitedTime <= 0 || timeElapsed >= limitedTime)
 	{
 		timer.UpdateTimePoint();
 		Update(timeElapsed);
 		glutPostRedisplay();
 	}
-	else if (timeElapsed < limitedTime - 0.005)
+	else if (limitedTime <= 0 || timeElapsed < limitedTime - 0.005)
 		lua.collect_garbage();
 #endif
 }

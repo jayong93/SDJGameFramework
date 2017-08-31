@@ -24,9 +24,10 @@ struct Framework
 	void LoadScene(const std::string& fileName);
 	void CleanUp();
 	Timer& GetTimer() { return timer; }
+	void EnableFrameLimit(double targetFps) { if (targetFps > 0) limitedTime = 1 / targetFps; }
+	void DisableFrameLimit() { limitedTime = 0.; }
 
 	sol::state lua;
-	double limitedFrame = 60.;
 
 	std::function<sol::protected_function_result(lua_State*, sol::protected_function_result)> luaErrFunc;
 
@@ -38,4 +39,5 @@ private:
 	std::unique_ptr<GameLogic> logic;
 	SceneLoader sceneLoader;
 	Timer timer;
+	double limitedTime = 1 / 60.;
 };
