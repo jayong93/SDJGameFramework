@@ -218,6 +218,7 @@
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Test|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -239,6 +240,7 @@
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Action.h" />
