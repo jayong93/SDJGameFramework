@@ -124,7 +124,7 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		if (CM.Get(handle))
 		{
 			auto type = CM.Type(handle);
-			sol::table get = lua["Component"]["get"][type];
+			sol::table getFuncs = lua["Component"]["get"][type];
 			if (arg.is<sol::table>())
 			{
 				sol::table argTable = arg.as<sol::table>();
@@ -132,8 +132,8 @@ static void LuaComponentInitialize(sol::state_view& lua)
 				{
 					if (argTable[i].get_type() == sol::type::string)
 					{
-						std::string name = argTable[i];
-						sol::protected_function fn = get[name];
+						const std::string& name = argTable[i];
+						sol::protected_function fn = getFuncs[name];
 						if (fn.valid())
 						{
 							sol::protected_function_result ret = fn(handle);
@@ -150,17 +150,16 @@ static void LuaComponentInitialize(sol::state_view& lua)
 							}
 							else
 								vr.emplace_back(ret);
+
+							continue;
 						}
-						else
-							vr.emplace_back(sol::nil);
 					}
-					else
-						vr.emplace_back(sol::nil);
+					vr.emplace_back(sol::nil);
 				}
 			}
 			else if (arg.is<std::string>())
 			{
-				vr.emplace_back(get[arg](handle));
+				vr.emplace_back(getFuncs[arg](handle));
 			}
 		}
 		return vr;
@@ -171,7 +170,7 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		if (CM.Get(handle))
 		{
 			auto type = CM.Type(handle);
-			sol::table set = lua["Component"]["set"][type];
+			sol::table setFuncs = lua["Component"]["set"][type];
 			if (arg.is<sol::table>())
 			{
 				sol::table argTable = arg.as<sol::table>();
@@ -179,9 +178,9 @@ static void LuaComponentInitialize(sol::state_view& lua)
 				{
 					if (i.first.is<std::string>())
 					{
-						sol::protected_function fn = set[i.first];
+						sol::protected_function fn = setFuncs[i.first];
 						if (fn.valid())
-							set[i.first](handle, i.second);
+							setFuncs[i.first](handle, i.second);
 					}
 				}
 			}
