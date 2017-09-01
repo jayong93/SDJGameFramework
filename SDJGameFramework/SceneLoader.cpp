@@ -4,7 +4,7 @@
 
 using namespace rapidjson;
 
-void SceneLoader::LoadScene(const std::string file, sol::state_view& lua)
+void SceneLoader::LoadScene(const std::string file, sol::state_view& lua) const
 {
 	std::ifstream ifs{ file };
 	if (ifs.bad()) return;
@@ -53,7 +53,7 @@ static void SetNamedArgsInTable(sol::table& args, const std::string& name, const
 	}
 }
 
-void SceneLoader::LoadObject(rapidjson::Document & scene, sol::state_view& lua)
+void SceneLoader::LoadObject(const rapidjson::Document & scene, sol::state_view& lua) const
 {
 	if (scene.HasMember("object"))
 	{
@@ -75,7 +75,7 @@ void SceneLoader::LoadObject(rapidjson::Document & scene, sol::state_view& lua)
 	}
 }
 
-void SceneLoader::LoadComponentScript(rapidjson::Document & scene, sol::state_view& lua)
+void SceneLoader::LoadComponentScript(const rapidjson::Document & scene, sol::state_view& lua) const
 {
 	if (scene.HasMember("component"))
 	{
@@ -102,7 +102,7 @@ void SceneLoader::LoadComponentScript(rapidjson::Document & scene, sol::state_vi
 	}
 }
 
-void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<false, rapidjson::GenericValue<rapidjson::UTF8<>>>& objData, ObjectHandle obj, sol::state_view & lua)
+void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<true,rapidjson::GenericValue<rapidjson::UTF8<>>>& objData, ObjectHandle obj, sol::state_view & lua) const
 {
 	bool hasVar = objData.HasMember("var");
 	auto& compoList = objData["component"].GetArray();
