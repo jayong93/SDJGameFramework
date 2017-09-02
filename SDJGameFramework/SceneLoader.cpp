@@ -14,7 +14,6 @@ void SceneLoader::LoadScene(const std::string file, sol::state_view& lua) const
 	doc.ParseStream(isw);
 	if (doc.HasParseError()) return;
 
-	LoadComponentScript(doc, lua);
 	LoadObject(doc, lua);
 }
 
@@ -72,36 +71,6 @@ void SceneLoader::LoadObject(const rapidjson::Document & scene, sol::state_view&
 
 			LoadComponentOfObject(data, hObj, lua);
 		}
-	}
-}
-
-void SceneLoader::LoadComponentScript(const rapidjson::Document & scene, sol::state_view& lua) const
-{
-	WIN32_FIND_DATAA fData;
-	HANDLE ret = FindFirstFileA(R"(.\script\*.lua)", &fData);
-
-	if (ret != INVALID_HANDLE_VALUE)
-	{
-		const char* path = R"(.\script\)";
-		do
-		{
-			char fullName[256];
-			strcpy_s(fullName, path);
-			strcat_s(fullName, fData.cFileName);
-			std::ifstream compoScript{ fullName };
-			if (compoScript.bad()) continue;
-
-			sol::protected_function fn = lua.load_file(fullName);
-			if (!fn.valid()) continue;
-
-			size_t extStartIdx = strlen(fData.cFileName) - 4;
-			fData.cFileName[extStartIdx] = 0;
-			lua["Component"]["prototype"][fData.cFileName] = fn;
-
-			size_t type = GetHash(fData.cFileName);
-			lua["Component"]["get"][type] = lua.create_table();
-			lua["Component"]["set"][type] = lua.create_table();
-		} while (FindNextFileA(ret, &fData));
 	}
 }
 

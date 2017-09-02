@@ -10,6 +10,7 @@ void Framework::Init()
 {
 	// 시스템 초기화
 	LuaStateInitialize(lua);
+	LoadScripts();
 
 	render = std::make_unique<RenderSystem>();
 	render->Init();
@@ -82,4 +83,34 @@ Framework::Framework()
 		}
 		return pfr;
 	};
+}
+
+void Framework::LoadScripts()
+{
+	WIN32_FIND_DATAA fData;
+	HANDLE ret = FindFirstFileA(R"(.\script\*.lua)", &fData);
+
+	if (ret != INVALID_HANDLE_VALUE)
+	{
+		const char* path = R"(.\script\)";
+		do
+		{
+			char fullName[256];
+			strcpy_s(fullName, path);
+			strcat_s(fullName, fData.cFileName);
+			std::ifstream compoScript{ fullName };
+			if (compoScript.bad()) continue;
+
+			sol::protected_function fn = lua.load_file(fullName);
+			if (!fn.valid()) continue;
+
+			size_t extStartIdx = strlen(fData.cFileName) - 4;
+			fData.cFileName[extStartIdx] = 0;
+			lua["Component"]["prototype"][fData.cFileName] = fn;
+
+			size_t type = GetHash(fData.cFileName);
+			lua["Component"]["get"][type] = lua.create_table();
+			lua["Component"]["set"][type] = lua.create_table();
+		} while (FindNextFileA(ret, &fData));
+	}
 }

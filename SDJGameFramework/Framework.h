@@ -34,6 +34,7 @@ struct Framework
 private:
 	Framework();
 	~Framework() {}
+	void LoadScripts();
 
 	std::unique_ptr<RenderSystem> render;
 	std::unique_ptr<GameLogic> logic;
