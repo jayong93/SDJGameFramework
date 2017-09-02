@@ -52,13 +52,9 @@ ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float
 
 Object * ObjectManager::Get(const ObjectHandle & handle)
 {
-	if (handleList.size() <= handle.index)
-		return nullptr;
+	if (!IsValid(handle)) return nullptr;
 
 	HandleEntry& entry = handleList[handle.index];
-
-	if (entry.isActive == false || entry.count != handle.count)
-		return nullptr;
 
 	return &objectList[entry.index];
 }
@@ -73,12 +69,9 @@ Object * ObjectManager::GetByName(const std::string& name)
 
 void ObjectManager::Delete(const ObjectHandle & handle)
 {
-	bool con = handleList.size() > handle.index;
-	if (!con) return;
+	if (!IsValid(handle)) return;
 
 	HandleEntry& entry = handleList[handle.index];
-	if (entry.isActive == false || entry.count != handle.count)
-		return;
 
 	freeIndexQueue.emplace_back(handle.index);
 	entry.isActive = false;
@@ -102,4 +95,16 @@ void ObjectManager::Clear()
 	this->freeIndexQueue.clear();
 	this->objectList.clear();
 	this->objectNameMap.clear();
+}
+
+bool ObjectManager::IsValid(const ObjectHandle & handle) const
+{
+	if (handleList.size() <= handle.index)
+		return false;
+
+	const HandleEntry& entry = handleList[handle.index];
+	if (entry.isActive == false || entry.count != handle.count)
+		return false;
+
+	return true;
 }
