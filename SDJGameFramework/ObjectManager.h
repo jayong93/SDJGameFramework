@@ -21,6 +21,8 @@ public:
 	size_t Size() const { return objectList.size(); }
 	void Clear();
 
+	bool IsValid(const ObjectHandle& handle) const;
+
 private:
 	ObjectManager() {}
 
