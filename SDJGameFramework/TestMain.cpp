@@ -447,11 +447,12 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 	FW.lua.safe_script(R"(
 obj1 = Object.Get("obj1")
 compo1 = obj1:GetComponent("Plus")
-testVar = compo1:Get{"testVar"}
+testVar, nilVar = compo1:Get{"testVar", 1}
 )");
 	sol::optional<int> testVarInLua = FW.lua["testVar"];
 	EXPECT_TRUE(testVarInLua);
 	EXPECT_TRUE(testVarInLua.value() == 50);
+	EXPECT_TRUE(FW.lua["nilVar"].get_type() == sol::type::none);
 
 	auto obj2 = OM.GetByName("obj4");
 	ASSERT_TRUE(obj2);

@@ -129,7 +129,10 @@ static void LuaComponentInitialize(sol::state_view& lua)
 			{
 				for (int i = 1; i <= argTable.size(); ++i)
 				{
-					vr.emplace_back(compo->env[argTable[i]]);
+					if (argTable[i].get_type() == sol::type::string)
+						vr.emplace_back(compo->env[argTable[i]]);
+					else
+						vr.emplace_back(sol::nil);
 				}
 			}
 		}
