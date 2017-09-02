@@ -13,7 +13,7 @@ static void LuaObjectInitialize(sol::state_view& lua)
 	auto objectMt = lua.create_table();
 	objectMt["__index"] = objectMt;
 
-	auto selfCheck = [](sol::table self) -> uint64_t {
+	auto SelfCheck = [](sol::table self) -> uint64_t {
 		if (self.valid())
 		{
 			uint64_t handle = self["handle"];
@@ -22,19 +22,19 @@ static void LuaObjectInitialize(sol::state_view& lua)
 		return 0;
 	};
 	objectMt["Move"] = [&](sol::table self, double x, double y, double z) {
-		if (Object* obj = OM.Get(selfCheck(self)))
+		if (Object* obj = OM.Get(SelfCheck(self)))
 		{
 			obj->position += Vector3D(x, y, z);
 		}
 	};
 	objectMt["MoveTo"] = [&](sol::table self, double x, double y, double z) {
-		if (Object* obj = OM.Get(selfCheck(self)))
+		if (Object* obj = OM.Get(SelfCheck(self)))
 		{
 			obj->position.Set(x, y, z);
 		}
 	};
 	objectMt["Position"] = [&](sol::table self) {
-		Object* obj = OM.Get(selfCheck(self));
+		Object* obj = OM.Get(SelfCheck(self));
 		if (!obj)
 		{
 			sol::object nil = sol::make_object(lua, sol::nil);
@@ -48,14 +48,14 @@ static void LuaObjectInitialize(sol::state_view& lua)
 		return std::make_tuple(p[0], p[1], p[2]);
 	};
 	objectMt["Has"] = [&](sol::table self, std::string type) {
-		if (Object* obj = OM.Get(selfCheck(self)))
+		if (Object* obj = OM.Get(SelfCheck(self)))
 		{
 			return obj->HasComponent(type);
 		}
 		return false;
 	};
 	objectMt["SendMsg"] = [&](sol::table self, sol::table msg) {
-		if (Object* obj = OM.Get(selfCheck(self)))
+		if (Object* obj = OM.Get(SelfCheck(self)))
 		{
 			if (msg.valid())
 			{
@@ -65,7 +65,7 @@ static void LuaObjectInitialize(sol::state_view& lua)
 	};
 	objectMt["GetComponent"] = [&](sol::table self, std::string type) -> sol::object
 	{
-		if (Object* obj = OM.Get(selfCheck(self)))
+		if (Object* obj = OM.Get(SelfCheck(self)))
 		{
 			auto compo = obj->GetComponent(type);
 			if (CM.Get(compo))
@@ -109,7 +109,7 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	// Get/Set 함수 설정
 	sol::table compoMt = lua.create_table();
 	compoMt["__index"] = compoMt;
-	auto selfCheck = [](sol::table self) -> uint64_t {
+	auto SelfCheck = [](sol::table self) -> uint64_t {
 		if (self.valid())
 		{
 			uint64_t handle = self["handle"];
@@ -117,11 +117,11 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		}
 		return 0;
 	};
-	compoMt["Get"] = [&, selfCheck](sol::table self, sol::object arg) -> sol::variadic_results
+	compoMt["Get"] = [&, SelfCheck](sol::table self, sol::object arg) -> sol::variadic_results
 	{
 		sol::variadic_results vr;
-		auto handle = selfCheck(self);
-		if (CM.Get(handle))
+		auto handle = SelfCheck(self);
+		if (CM.IsValid(handle))
 		{
 			auto type = CM.Type(handle);
 			sol::table getFuncs = lua["Component"]["get"][type];
@@ -164,10 +164,10 @@ static void LuaComponentInitialize(sol::state_view& lua)
 		}
 		return vr;
 	};
-	compoMt["Set"] = [&, selfCheck](sol::table self, sol::object arg)
+	compoMt["Set"] = [&, SelfCheck](sol::table self, sol::object arg)
 	{
-		auto handle = selfCheck(self);
-		if (CM.Get(handle))
+		auto handle = SelfCheck(self);
+		if (CM.IsValid(handle))
 		{
 			auto type = CM.Type(handle);
 			sol::table setFuncs = lua["Component"]["set"][type];

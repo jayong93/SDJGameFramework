@@ -6,25 +6,18 @@
 
 Component * ComponentManager::Get(const ComponentHandle & handle)
 {
-	if (handle.index >= handleList.size())
-		return nullptr;
+	if (!IsValid(handle)) return nullptr;
 
 	HandleEntry& entry = handleList[handle.index];
-	if (entry.isActive == false || entry.count != handle.count)
-		return nullptr;
 
 	return compoMap.at(entry.type)->Get(entry.index);
 }
 
 void ComponentManager::Delete(const ComponentHandle & handle)
 {
-	bool con = handleList.size() > handle.index;
-	if (!con) return;
+	if (!IsValid(handle)) return;
 
 	HandleEntry& entry = handleList[handle.index];
-	if (entry.isActive == false || entry.count != handle.count)
-		return;
-
 	ICompoList* list = compoMap.at(entry.type);
 
 	freeIndexQueue.emplace_back(handle.index);
@@ -54,12 +47,10 @@ void ComponentManager::ClearAndUnregister()
 
 size_t ComponentManager::Type(const ComponentHandle& handle) const
 {
-	if (handle.index >= handleList.size())
+	if (!IsValid(handle))
 		return 0;
 
 	const HandleEntry& entry = handleList[handle.index];
-	if (entry.isActive == false || entry.count != handle.count)
-		return 0;
 
 	return entry.realType;
 }
@@ -80,6 +71,29 @@ ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string
 		return ComponentHandle();
 	}
 	return handle;
+}
+
+bool ComponentManager::IsLuaComponent(const ComponentHandle & handle) const
+{
+	if (!IsValid(handle)) return false;
+
+	const HandleEntry& entry = handleList[handle.index];
+
+	if (entry.type == GetTypeHash<LuaComponent>())
+		return true;
+	return false;
+}
+
+bool ComponentManager::IsValid(const ComponentHandle & handle) const
+{
+	if (handle.index >= handleList.size())
+		return false;
+
+	const HandleEntry& entry = handleList[handle.index];
+	if (entry.isActive == false || entry.count != handle.count)
+		return false;
+
+	return true;
 }
 
 ComponentHandle ComponentManager::Add_(size_t type, const ObjectHandle & owner)

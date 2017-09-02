@@ -115,9 +115,11 @@ public:
 	template <typename T>
 	void RegisterComponentList(T& list);
 	template <typename T>
-	bool IsRegistered() { return IsRegistered(GetTypeHash<T>()); }
-	bool IsRegistered(const std::string& type) { return IsRegistered(GetHash(type)); }
-	bool IsRegistered(size_t type) { return compoMap.find(type) != compoMap.end(); }
+	bool IsRegistered() const { return IsRegistered(GetTypeHash<T>()); }
+	bool IsRegistered(const std::string& type) const { return IsRegistered(GetHash(type)); }
+	bool IsRegistered(size_t type) const { return compoMap.find(type) != compoMap.end(); }
+	bool IsLuaComponent(const ComponentHandle& handle) const;
+	bool IsValid(const ComponentHandle& handle) const;
 
 private:
 	ComponentManager() {}
