@@ -19,3 +19,7 @@
 #include <glut.h>
 #include "rapidjson\document.h"
 #include "rapidjson\istreamwrapper.h"
+#include <Windows.h>
+#include <tchar.h>
+
+#undef GetObject
