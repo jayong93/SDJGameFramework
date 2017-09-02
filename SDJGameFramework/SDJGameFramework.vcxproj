@@ -231,6 +231,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="typedef.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Vector3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActionList.h" />

@@ -27,6 +27,32 @@ struct Vector3D
 		return Vector3D(x + v.x, y + v.y, z + v.z);
 	}
 
+	Vector3D operator-(const Vector3D& v) const
+	{
+		return Vector3D(x - v.x, y - v.y, z - v.z);
+	}
+
+	Vector3D operator*(const Vector3D& v) const
+	{
+		return Vector3D(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
+	}
+
+	float Dot(const Vector3D& v) const
+	{
+		return (x*v.x + y*v.y + z*v.z);
+	}
+
+	float Length() const
+	{
+		return sqrtf(x*x + y*y + z*z);
+	}
+
+	Vector3D Normal() const
+	{
+		float leng = Length();
+		return Vector3D(x / leng, y / leng, z / leng);
+	}
+
 	Vector3D& operator+=(const Vector3D& v)
 	{
 		x += v.x; y += v.y; z += v.z;
@@ -39,4 +65,6 @@ struct Vector3D
 	}
 
 	operator float*() { return data; }
+
+	static void RegisterInLua(sol::state_view& lua);
 };

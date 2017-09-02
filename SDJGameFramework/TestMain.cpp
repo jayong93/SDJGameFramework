@@ -367,6 +367,32 @@ Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sph
 	}
 }
 
+TEST_F(LuaTestFixture, Vector3DUserType)
+{
+	sol::state_view lua{ FW.lua };
+
+	Vector3D v1{ 9.f, 2.f, 4.f };
+	lua["v1"] = v1;
+	auto v1x = lua["v1"]["x"].get<sol::optional<float>>();
+	auto v1y = lua["v1"]["y"].get<sol::optional<float>>();
+	auto v1z = lua["v1"]["z"].get<sol::optional<float>>();
+	ASSERT_TRUE(v1x && v1y && v1z);
+	EXPECT_TRUE(*v1x == 9.f);
+	EXPECT_TRUE(*v1y == 2.f);
+	EXPECT_TRUE(*v1z == 4.f);
+
+	lua.safe_script(R"(
+v2 = Vector:new(2, 0, 6)
+v2norm = v2.normal + Vector:new(0,1,0)
+print(v2norm.x, v2norm.y, v2norm.z)
+)");
+	auto v2 = lua["v2"].get<sol::optional<Vector3D>>();
+	ASSERT_TRUE(v2);
+	EXPECT_TRUE(v2->x == 2.f);
+	EXPECT_TRUE(v2->y == 0.f);
+	EXPECT_TRUE(v2->z == 6.f);
+}
+
 struct MainFrameworkTestFixture : public testing::Test
 {
 	MainFrameworkTestFixture()

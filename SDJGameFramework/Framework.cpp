@@ -10,6 +10,7 @@ void Framework::Init()
 {
 	// 시스템 초기화
 	LuaStateInitialize(lua);
+	Vector3D::RegisterInLua(lua);
 	LoadScripts();
 
 	render = std::make_unique<RenderSystem>();
