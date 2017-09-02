@@ -112,5 +112,7 @@ void Framework::LoadScripts()
 			lua["Component"]["get"][type] = lua.create_table();
 			lua["Component"]["set"][type] = lua.create_table();
 		} while (FindNextFileA(ret, &fData));
+
+		FindClose(ret);
 	}
 }
