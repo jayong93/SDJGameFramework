@@ -121,7 +121,19 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	{
 		sol::variadic_results vr;
 		auto handle = SelfCheck(self);
-		if (CM.IsValid(handle))
+		if (CM.IsLuaComponent(handle))
+		{
+			LuaComponent* compo = CM.GetBy<LuaComponent>(handle);
+			sol::table argTable = arg.as<sol::table>();
+			if (argTable.valid())
+			{
+				for (int i = 1; i <= argTable.size(); ++i)
+				{
+					vr.emplace_back(compo->env[argTable[i]]);
+				}
+			}
+		}
+		else if (CM.IsValid(handle))
 		{
 			auto type = CM.Type(handle);
 			sol::table getFuncs = lua["Component"]["get"][type];
@@ -167,7 +179,19 @@ static void LuaComponentInitialize(sol::state_view& lua)
 	compoMt["Set"] = [&, SelfCheck](sol::table self, sol::object arg)
 	{
 		auto handle = SelfCheck(self);
-		if (CM.IsValid(handle))
+		if (CM.IsLuaComponent(handle))
+		{
+			LuaComponent* compo = CM.GetBy<LuaComponent>(handle);
+			sol::table argTable = arg.as<sol::table>();
+			if (argTable.valid())
+			{
+				for (auto& a : argTable)
+				{
+					compo->env[a.first] = a.second;
+				}
+			}
+		}
+		else if (CM.IsValid(handle))
 		{
 			auto type = CM.Type(handle);
 			sol::table setFuncs = lua["Component"]["set"][type];
