@@ -17,15 +17,15 @@ void SceneLoader::LoadScene(const std::string file, sol::state_view& lua) const
 	LoadObject(doc, lua);
 }
 
-static void SetMultiArgs(sol::state_view& lua, sol::variadic_results& args, const GenericValue<UTF8<>>& d)
+static void SetMultiArgs(sol::table& args, const GenericValue<UTF8<>>& d)
 {
 	switch (d.GetType())
 	{
 		case Type::kNumberType:
-			args.emplace_back(lua, sol::in_place_type<float>, d.GetFloat());
+			args.add(d.GetFloat());
 			break;
 		case Type::kStringType:
-			args.emplace_back(lua, sol::in_place_type<std::string>, d.GetString());
+			args.add(d.GetString());
 			break;
 	}
 }
@@ -90,11 +90,14 @@ void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<true, rapidjson
 						break;
 					case rapidjson::Type::kArrayType:
 					{
-						sol::variadic_results vr;
+						sol::table vr = lua.create_table();
 						for (auto& item : d.value.GetArray())
 						{
-							SetMultiArgs(lua, vr, item);
+							SetMultiArgs(vr, item);
 						}
+						//sol::userdata u = compoTable[compoHandle.ToUInt64()][vName];
+						//if (u.valid())
+						//	u.set(vr);
 						compoTable.traverse_set(compoHandle.ToUInt64(), vName, vr);
 					}
 					break;

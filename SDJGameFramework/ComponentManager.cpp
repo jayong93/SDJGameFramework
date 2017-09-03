@@ -70,7 +70,8 @@ ComponentHandle ComponentManager::AddLuaComponent(const std::string & scriptName
 	}
 
 	auto obj = OM.Get(owner);
-	auto compoTable = FW.lua["objects"]["component"].get<sol::optional<sol::table>>();
+	FW.lua["components"][handle.ToUInt64()] = compo->env;
+	auto compoTable = FW.lua["objects"][obj->name]["component"].get<sol::optional<sol::table>>();
 	if (compoTable)
 	{
 		compoTable->set(scriptName, FW.lua["components"][handle.ToUInt64()]);

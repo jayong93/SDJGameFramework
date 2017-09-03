@@ -41,26 +41,24 @@ void Shape::RegisterInLua()
 	for (int i = 0; i < 4; ++i)
 		SetParam[i] = [i](ComponentInLua& c, float v) {auto& s = *CM.GetBy<Shape>(c.handle); s.param[i] = v; };
 
-	auto Color = [](ComponentInLua& c, sol::variadic_args v, sol::this_state lua) -> sol::object
+	auto GetColor = [](ComponentInLua& c) {auto& s = *CM.GetBy<Shape>(c.handle); return s.color; };
+	auto SetColor = [](ComponentInLua& c, sol::object v)
 	{
 		auto& s = *CM.GetBy<Shape>(c.handle);
-		if (v.size() == 0)
+		v.get_type();
+		if (v.is<Vector3D>())
 		{
-			return sol::object(lua, sol::in_place, s.color);
+			s.color = v.as<Vector3D>();
 		}
-		else if (v.size() == 1)
+		else if (v.is<sol::table>())
 		{
-			auto vec = v[0].get<sol::optional<Vector3D>>();
-			if (vec) s.color = vec.value();
-		}
-		else if (v.size() > 1)
-		{
-			for (int i = 0; i < v.size(); ++i)
+			sol::table t = v.as<sol::table>();
+			int limit = t.size() > 3 ? 3 : t.size();
+			for (int i = 1; i <= limit; ++i)
 			{
-				s.color[i] = v[i].as<float>();
+				s.color[i - 1] = t[i];
 			}
 		}
-		return sol::nil;
 	};
 
 	sol::table t = FW.lua["Component"].get<sol::table>();
@@ -83,7 +81,7 @@ void Shape::RegisterInLua()
 		"coneSlice", sol::property(GetParam[2], SetParam[2]),
 		"torusRing", sol::property(GetParam[3], SetParam[3]),
 		"coneStack", sol::property(GetParam[3], SetParam[3]),
-		"color", sol::property(Color)
+		"color", sol::property(GetColor, SetColor)
 		);
 }
 
@@ -119,7 +117,6 @@ bool LuaComponent::SetScript(const std::string & name)
 		auto& ownerName = OM.Get(owner)->name;
 		env["owner"] = lua["objects"][ownerName];
 		env["handle"] = handle.ToUInt64();
-		lua["components"][handle.ToUInt64()] = env.as<sol::table>();
 		scriptName = name;
 		return true;
 	}

@@ -367,6 +367,9 @@ c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "sphere", 10, 20, 30
 	EXPECT_TRUE(size.get_type() == sol::type::number);
 	EXPECT_TRUE(size.as<float>() == c1->cube.size);
 
+	lua.safe_script("compo1.color = {1, 2, 3}");
+	EXPECT_TRUE(c1->color == Vector3D(1, 2, 3));
+
 	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
 	EXPECT_TRUE(c2->sphere.radius == 10);
 	EXPECT_TRUE(c2->sphere.slice == 20);
@@ -480,9 +483,9 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 obj1 = objects.obj1
 compo1 = obj1.component.Plus
 testVar, nilVar = compo1.testVar, compo1.fsf
-)");
+)", FW.luaErrFunc);
 	sol::optional<int> testVarInLua = FW.lua["testVar"];
-	EXPECT_TRUE(testVarInLua);
+	ASSERT_TRUE(testVarInLua);
 	EXPECT_TRUE(testVarInLua.value() == 50);
 	EXPECT_TRUE(FW.lua["nilVar"].get_type() == sol::type::none);
 
