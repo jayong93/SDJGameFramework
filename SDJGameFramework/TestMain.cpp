@@ -382,8 +382,8 @@ TEST_F(LuaTestFixture, Vector3DUserType)
 	EXPECT_TRUE(*v1z == 4.f);
 
 	lua.safe_script(R"(
-v2 = Vector:new(2, 0, 6)
-v2norm = v2.normal + Vector:new(0,1,0)
+v2 = Vector.new(2, 0, 6)
+v2norm = v2.normal + Vector.new(0,1,0)
 print(v2norm.x, v2norm.y, v2norm.z)
 )");
 	auto v2 = lua["v2"].get<sol::optional<Vector3D>>();
