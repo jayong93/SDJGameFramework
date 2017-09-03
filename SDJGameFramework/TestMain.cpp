@@ -249,6 +249,19 @@ struct LuaTestFixture : public testing::Test
 	}
 };
 
+TEST_F(LuaTestFixture, SolTable)
+{
+	sol::state_view lua{ FW.lua };
+	lua.safe_script("t = {}");
+	auto t = lua["t"].get<sol::optional<sol::table>>();
+	ASSERT_TRUE(t);
+
+	lua.safe_script("t.a = 10");
+	auto a = (*t)["a"].get<sol::optional<int>>();
+	ASSERT_TRUE(a);
+	EXPECT_TRUE(*a == 10);
+}
+
 TEST_F(LuaTestFixture, ControlObject)
 {
 	auto& lua = FW.lua;
