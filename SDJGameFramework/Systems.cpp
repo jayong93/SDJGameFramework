@@ -56,7 +56,7 @@ void GameLogic::Update(double time)
 	auto& lua = FW.lua;
 	for (auto& c : this->scriptList)
 	{
-		sol::table instance = lua["Component"]["instance"][uint64_t(c.handle)];
+		sol::table instance = lua["components"][uint64_t(c.handle)];
 		if (instance)
 		{
 			sol::protected_function fn = instance["Update"];

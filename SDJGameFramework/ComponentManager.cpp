@@ -55,14 +55,12 @@ size_t ComponentManager::Type(const ComponentHandle& handle) const
 	return entry.realType;
 }
 
-ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string & scriptName, const ObjectHandle & owner)
+ComponentHandle ComponentManager::AddLuaComponent(const std::string & scriptName, const ObjectHandle & owner)
 {
-	auto obj = OM.Get(owner);
-	if (obj->HasComponent(type))
+	auto handle = Add_(GetTypeName<LuaComponent>(), scriptName, owner);
+	if (!handle)
 		return ComponentHandle();
 
-	size_t luaType = GetTypeHash<LuaComponent>();
-	auto handle = Add_(luaType, type, compoMap[luaType], owner);
 	auto compo = GetBy<LuaComponent>(handle);
 	bool ret = compo->SetScript(scriptName);
 	if (!ret)
@@ -70,6 +68,14 @@ ComponentHandle ComponentManager::AddLuaComponent(size_t type, const std::string
 		OM.Get(compo->owner)->DelComponent(handle);
 		return ComponentHandle();
 	}
+
+	auto obj = OM.Get(owner);
+	auto compoTable = FW.lua["objects"]["component"].get<sol::optional<sol::table>>();
+	if (compoTable)
+	{
+		compoTable->set(scriptName, FW.lua["components"][handle.ToUInt64()]);
+	}
+
 	return handle;
 }
 
@@ -96,21 +102,16 @@ bool ComponentManager::IsValid(const ComponentHandle & handle) const
 	return true;
 }
 
-ComponentHandle ComponentManager::Add_(size_t type, const ObjectHandle & owner)
+ComponentHandle ComponentManager::Add_(const std::string& type, const std::string& realType, const ObjectHandle & owner)
 {
-	auto it = compoMap.find(type);
+	size_t hashedType = GetHash(type);
+	size_t hashedRealType = GetHash(realType);
+
+	auto it = compoMap.find(hashedType);
 	if (it == compoMap.end())
 		return ComponentHandle();
 
-	auto obj = OM.Get(owner);
-	if (obj->HasComponent(type))
-		return ComponentHandle();
-
-	return Add_(type, type, it->second, owner);
-}
-
-ComponentHandle ComponentManager::Add_(size_t type, size_t realType, ICompoList * list, const ObjectHandle & owner)
-{
+	ICompoList* list = compoMap[hashedType];
 	Component* compo = list->Add();
 
 	HandleEntry* entry;
@@ -135,20 +136,26 @@ ComponentHandle ComponentManager::Add_(size_t type, size_t realType, ICompoList 
 
 	entry->isActive = true;
 	entry->index = list->Size() - 1;
-	entry->type = type;
-	entry->realType = realType;
+	entry->type = hashedType;
+	entry->realType = hashedRealType;
 
 	ComponentHandle handle = Handle(index, entry->count);
 	compo->handle = handle;
 
-	OM.Get(owner)->AddComponent(handle);
+	Object* obj = OM.Get(owner);
+	bool ret = obj->AddComponent(handle);
+	if (!ret)
+	{
+		Delete(handle);
+		return ComponentHandle();
+	}
+
+	if (hashedType != GetTypeHash<LuaComponent>())
+	{
+		FW.lua["components"][handle.ToUInt64()] = FW.lua["Component"][realType]["new"](handle, owner);
+		FW.lua["objects"][obj->name]["component"][type] = FW.lua["components"][handle.ToUInt64()];
+	}
 
 	return handle;
 }
 
-void ComponentManager::RegisterComponentList_(const std::string& type, size_t numType, MessageMap & msgMap)
-{
-	MM.RegisterComponentMessageMap(numType, msgMap);
-	FW.lua["Component"]["get"][numType] = FW.lua.create_table();
-	FW.lua["Component"]["set"][numType] = FW.lua.create_table();
-}

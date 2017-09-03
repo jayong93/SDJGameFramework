@@ -44,12 +44,11 @@ public:
 	{
 		if (arr.size() == 0)
 			return ComponentHandle();
-		if (arr.size() == 1)
+		if (arr.size() == 1 || i == arr.size()-1)
 		{
 			arr.pop_back();
 			return ComponentHandle();
 		}
-
 		std::swap(arr[i], arr.back());
 		arr.pop_back();
 		return arr[i].handle;
@@ -105,9 +104,11 @@ public:
 
 	template <typename T>
 	ComponentHandle Add(const ObjectHandle& owner);
-	ComponentHandle Add(const std::string& type, const ObjectHandle& owner) { return Add_(GetHash(type), owner); }
-	ComponentHandle AddLuaComponent(size_t type, const std::string& scriptName, const ObjectHandle& owner);
-	ComponentHandle AddLuaComponent(const std::string& scriptName, const ObjectHandle& owner) { return AddLuaComponent(GetHash(scriptName), scriptName, owner); }
+	ComponentHandle Add(const std::string& type, const ObjectHandle& owner)
+	{
+		return Add_(type, type, owner);
+	}
+	ComponentHandle AddLuaComponent(const std::string& scriptName, const ObjectHandle& owner);
 
 	template <typename T>
 	size_t Size() const;
@@ -124,9 +125,7 @@ public:
 private:
 	ComponentManager() {}
 	~ComponentManager() {}
-	ComponentHandle Add_(size_t type, const ObjectHandle& owner);
-	ComponentHandle Add_(size_t type, size_t realType, ICompoList* list, const ObjectHandle& owner);
-	void RegisterComponentList_(const std::string& type, size_t numType, MessageMap& msgMap);
+	ComponentHandle Add_(const std::string& type, const std::string& realType, const ObjectHandle& owner);
 
 	std::map<size_t, ICompoList*> compoMap;
 
@@ -156,7 +155,7 @@ inline T * ComponentManager::GetBy(const ComponentHandle & handle)
 template<typename T>
 inline ComponentHandle ComponentManager::Add(const ObjectHandle& owner)
 {
-	return Add_(GetTypeHash<T>(), owner);
+	return Add(GetTypeName<T>(), owner);
 }
 
 template<typename T>
@@ -179,6 +178,5 @@ inline void ComponentManager::RegisterComponentList(T& list)
 	bool con = IsRegistered(type);
 	assert(!con && "this type registered already");
 	compoMap[numType] = &list;
-	RegisterComponentList_(type, numType, T::CompoType::InitMsgMap());
-	T::CompoType::InitGetSetFunc();
+	T::CompoType::RegisterInLua();
 }

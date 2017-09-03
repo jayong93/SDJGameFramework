@@ -19,15 +19,18 @@ int main(int argc, wchar_t* argv[])
 
 TEST(HandleTest, UsingNumberAsHandle)
 {
+	FW.Init();
 	auto handle = OM.Add("aaa");
 	uint64_t numHandle = handle;
 	EXPECT_TRUE(OM.Get(handle) == OM.Get(numHandle));
 
 	OM.Clear();
+	FW.CleanUp();
 }
 
 TEST(ObjectTest, Add)
 {
+	FW.Init();
 	ObjectHandle aaaHandle = OM.Add("aaa");
 	OM.Add("bbb");
 	OM.Add("bbb");
@@ -35,6 +38,7 @@ TEST(ObjectTest, Add)
 
 	ObjectHandle namedHandle = OM.GetByName("aaa")->handle;
 	EXPECT_TRUE(aaaHandle == namedHandle);
+	FW.CleanUp();
 }
 
 struct ObjectTestFixture : public testing::Test
@@ -164,6 +168,10 @@ TEST(ComponentTest, Add)
 	EXPECT_TRUE(CM.Get(handle)->handle == handle);
 	EXPECT_TRUE(CM.Get(handle2)->handle == handle2);
 
+	auto errHandle = CM.Add<Shape>(obj);
+	EXPECT_FALSE(errHandle);
+	EXPECT_TRUE(CM.Size<Shape>() == 2);
+
 	FW.CleanUp();
 }
 
@@ -255,7 +263,7 @@ TEST_F(LuaTestFixture, SolTable)
 	lua.safe_script("t = {}");
 	auto t = lua["t"].get<sol::optional<sol::table>>();
 	ASSERT_TRUE(t);
-
+	
 	lua.safe_script("t.a = 10");
 	auto a = (*t)["a"].get<sol::optional<int>>();
 	ASSERT_TRUE(a);
@@ -266,14 +274,14 @@ TEST_F(LuaTestFixture, ControlObject)
 {
 	auto& lua = FW.lua;
 	lua.safe_script(R"(
-obj1 = Object.Get("obj1")
-obj1:MoveTo(3,4,5)
+obj1 = objects.obj1
+obj1.position = Vector.new(3,4,5)
 	)", errFn
 	);
 
 	// GetObject 테스트
-	uint64_t hObj1 = lua["obj1"]["handle"];
-	EXPECT_TRUE(hObj1 == uint64_t(obj1));
+	ObjectHandle hObj1 = lua["obj1"]["handle"];
+	EXPECT_TRUE(hObj1 == obj1);
 
 	// MoveTo 테스트
 	auto obj1Ptr = OM.Get(obj1);
@@ -284,14 +292,11 @@ obj1:MoveTo(3,4,5)
 	EXPECT_TRUE(obj1Ptr->position == Vector3D(4, 4, 6));
 
 	// Position 테스트
-	float x, y, z;
-	sol::tie(x, y, z) = lua["obj1"]["Position"](lua["obj1"]);
-	EXPECT_TRUE(x == 4.);
-	EXPECT_TRUE(y == 4.);
-	EXPECT_TRUE(z == 6.);
+	Vector3D pos = lua["obj1"]["position"].get<Vector3D>();
+	EXPECT_TRUE(pos == Vector3D(4.f, 4.f, 6.f));
 
-	lua.safe_script(R"(ret = obj1:Has("Shape"))", errFn);
-	EXPECT_TRUE(lua["ret"].get<bool>());
+	lua.safe_script(R"(ret = obj1.component.Shape)", errFn);
+	EXPECT_TRUE(lua["ret"].get_type() == sol::type::userdata);
 }
 
 TEST_F(LuaTestFixture, LuaEnvironment)
@@ -348,36 +353,24 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	c1->color.Set(0.4f, 0.4f, 0.2f);
 
 	lua.safe_script(R"(
-obj1 = Object.Get("obj1")
-compo1 = obj1:GetComponent("Shape")
-size, r, g, b = compo1:Get{"cubeSize","color"}
-Object.Get("obj2"):GetComponent("Shape"):Set{type="sphere", sphereRadius=10, sphereSlice=20, sphereStack=30}
+obj1 = objects.obj1
+compo1 = obj1.component.Shape
+size, color = compo1.cubeSize, compo1.color
+c2 = objects.obj2.component.Shape
+c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "sphere", 10, 20, 30
 )", errFn);
 
-	{
-		sol::optional<float> r = lua["r"];
-		sol::optional<float> g = lua["g"];
-		sol::optional<float> b = lua["b"];
-		sol::object size = lua["size"];
-		EXPECT_TRUE(r && g && b);
-		EXPECT_TRUE(r == 0.4f && g == 0.4f && b == 0.2f);
-		EXPECT_TRUE(size.get_type() == sol::type::number);
-		EXPECT_TRUE(size.as<float>() == c1->cube.size);
+	sol::optional<Vector3D> color = lua["color"];
+	sol::object size = lua["size"];
+	ASSERT_TRUE(color);
+	EXPECT_TRUE(*color == Vector3D(0.4f, 0.4f, 0.2f));
+	EXPECT_TRUE(size.get_type() == sol::type::number);
+	EXPECT_TRUE(size.as<float>() == c1->cube.size);
 
-		EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
-		EXPECT_TRUE(c2->sphere.radius == 10);
-		EXPECT_TRUE(c2->sphere.slice == 20);
-		EXPECT_TRUE(c2->sphere.stack == 30);
-	}
-
-	{
-		c1->color.x = 0.5;
-		lua.safe_script(R"(r, size = compo1:Get{"color", "cubeSize"})");
-		sol::optional<float> r = lua["r"];
-		EXPECT_TRUE(r && r.value() == 0.5);
-		sol::object size = lua["size"];
-		EXPECT_TRUE(size.as<float>() == c1->cube.size);
-	}
+	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
+	EXPECT_TRUE(c2->sphere.radius == 10);
+	EXPECT_TRUE(c2->sphere.slice == 20);
+	EXPECT_TRUE(c2->sphere.stack == 30);
 }
 
 TEST_F(LuaTestFixture, Vector3DUserType)
@@ -441,7 +434,7 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 
 	auto& compoTable = FW.lua["Component"].get<sol::table>();
 	ASSERT_TRUE(compoTable);
-	auto& instances = FW.lua["Component"]["instance"].get<sol::table>();
+	auto& instances = FW.lua["components"].get<sol::table>();
 	ASSERT_TRUE(instances);
 
 	int i = 0;
@@ -476,7 +469,7 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 	ASSERT_TRUE(shape1);
 	EXPECT_TRUE(shape1->shapeType == Shape::Type::CUBE);
 	EXPECT_TRUE(shape1->cube.size == 5.f);
-	EXPECT_TRUE(shape1->color == Vector3D( 1.f,0.f,0.f ));
+	EXPECT_TRUE(shape1->color == Vector3D(1.f, 0.f, 0.f));
 
 	auto luaCompo = CM.GetBy<LuaComponent>(obj1->GetComponent("Plus"));
 	sol::optional<int> testVar = luaCompo->env["testVar"];
@@ -484,9 +477,9 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 	EXPECT_TRUE(testVar.value() == 50);
 
 	FW.lua.safe_script(R"(
-obj1 = Object.Get("obj1")
-compo1 = obj1:GetComponent("Plus")
-testVar, nilVar = compo1:Get{"testVar", 1}
+obj1 = objects.obj1
+compo1 = obj1.component.Plus
+testVar, nilVar = compo1.testVar, compo1.fsf
 )");
 	sol::optional<int> testVarInLua = FW.lua["testVar"];
 	EXPECT_TRUE(testVarInLua);

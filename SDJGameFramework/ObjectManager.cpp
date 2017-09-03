@@ -15,6 +15,8 @@ ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float
 
 	objectList.emplace_back();
 
+	ObjectHandle handle;
+
 	if (!freeIndexQueue.empty())
 	{
 		unsigned index = freeIndexQueue.front();
@@ -27,9 +29,8 @@ ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float
 		entry.isActive = true;
 		entry.index = objectList.size() - 1;
 
-		ObjectHandle handle = Handle(index, entry.count);
+		handle = Handle(index, entry.count);
 		objectList.back().handle = handle;
-		return handle;
 	}
 	else
 	{
@@ -40,14 +41,26 @@ ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float
 		entry.isActive = true;
 		entry.index = objectList.size() - 1;
 
-		ObjectHandle handle = Handle(handleList.size() - 1, entry.count);
+		handle = Handle(handleList.size() - 1, entry.count);
 		Object& obj = objectList.back();
 		obj.handle = handle;
 		obj.name = name;
 		obj.position = Vector3D{ x,y,z };
 		objectNameMap.emplace(name, handle);
-		return handle;
 	}
+
+	FW.lua["objects"][name] = FW.lua["Object"]["new"](handle);
+	return handle;
+}
+
+void ObjectManager::AddChild(const ObjectHandle & parent, const ObjectHandle & child)
+{
+	auto pObj = Get(parent);
+	auto cObj = Get(child);
+	if (!pObj || !cObj) return;
+
+	pObj->childList.emplace_back(child);
+	cObj->parent = parent;
 }
 
 Object * ObjectManager::Get(const ObjectHandle & handle)
@@ -72,6 +85,13 @@ void ObjectManager::Delete(const ObjectHandle & handle)
 	if (!IsValid(handle)) return;
 
 	HandleEntry& entry = handleList[handle.index];
+
+	auto& obj = objectList[entry.index];
+
+	for (auto& c : obj.compoList)
+	{
+		CM.Delete(c);
+	}
 
 	freeIndexQueue.emplace_back(handle.index);
 	entry.isActive = false;

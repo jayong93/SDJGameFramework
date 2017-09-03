@@ -14,26 +14,32 @@ position - 월드에서 오브젝트의 이름(UI 같은 경우는 화면에서)
 */
 struct Object
 {
-	ObjectHandle handle;
+	ObjectHandle handle, parent;
 	std::vector<ComponentHandle> compoList;
+	std::vector<ObjectHandle> childList;
 	std::map<uint64_t, size_t> compoIdxMap;
 	std::map<size_t, ComponentHandle> compoTypeMap;
 	std::string name;
 
 	Vector3D position;
 
+	void Move(const Vector3D& offset) { position += offset; }
+
 	bool AddComponent(ComponentHandle handle);
 	bool DelComponent(ComponentHandle handle);
-	bool HasComponent(const std::string& type) const { return HasComponent(GetHash(type)); }
-	bool HasComponent(size_t type) const;
+
 	template <typename T>
 	bool HasComponent() const;
+	bool HasComponent(const std::string& type) const { return HasComponent(GetHash(type)); }
+	bool HasComponent(size_t type) const;
+
 	template<typename T>
 	ComponentHandle GetComponent();
 	ComponentHandle GetComponent(const std::string& type);
 	ComponentHandle GetComponent(size_t type);
 
 	void SendMsg(sol::object msg);
+	static void RegisterInLua();
 };
 
 template<typename T>

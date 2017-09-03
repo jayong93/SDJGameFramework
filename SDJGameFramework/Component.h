@@ -54,7 +54,7 @@ struct Shape : public Component
 	static const char* typeNames[];
 	const static StringHashMap<unsigned> typeMap;
 	static MessageMap InitMsgMap() { return MessageMap(); }
-	static void InitGetSetFunc();
+	static void RegisterInLua();
 
 private:
 	static StringHashMap<unsigned> InitTypeMap();
@@ -70,7 +70,7 @@ struct LuaComponent : public Component
 	virtual ~LuaComponent();
 	bool SetScript(const std::string& name);
 	virtual void SendMsg(sol::object& args);
-	static void InitGetSetFunc() {}
+	static void RegisterInLua() {}
 	static MessageMap InitMsgMap() { return MessageMap(); }
 
 	sol::environment env;

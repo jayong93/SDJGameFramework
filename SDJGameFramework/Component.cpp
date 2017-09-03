@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "ComponentManager.h"
+#include "HandleManagers.h"
 #include "MessageManager.h"
 #include "Framework.h"
 #include "Util.h"
-#include "ComponentGetSetMacro.h"
+#include "LuaInterfaceType.h"
 
 #define MSG_HANDLER(Component, Table) [](void* Component, sol::table& Table) -> bool
 
@@ -29,58 +29,62 @@ void Component::SendMsg(sol::object& args)
 const StringHashMap<unsigned> Shape::typeMap = Shape::InitTypeMap();
 const char* Shape::typeNames[] = { "none", "cube", "sphere", "cone", "torus", "teapot" };
 
-void Shape::InitGetSetFunc()
+void Shape::RegisterInLua()
 {
-	START_GETSET_DEF(Shape);
-	SIMPLE_GETSET_DEF(sphereRadius, sphere.radius);
-	SIMPLE_GETSET_DEF(coneBase, cone.base);
-	SIMPLE_GETSET_DEF(coneHeight, cone.height);
-	SIMPLE_GETSET_DEF(torusSide, torus.side);
-	SIMPLE_GETSET_DEF(torusRing, torus.ring);
-	SIMPLE_GETSET_DEF(torusInnerRadius, torus.innerRadius);
-	SIMPLE_GETSET_DEF(torusOuterRadius, torus.outerRadius);
-	SIMPLE_GETSET_DEF(cubeSize, cube.size);
-	SIMPLE_GETSET_DEF(teapotSize, teapot.size);
-	SIMPLE_GETSET_DEF(sphereSlice, sphere.slice);
-	SIMPLE_GETSET_DEF(coneSlice, cone.slice);
-	SIMPLE_GETSET_DEF(sphereStack, sphere.stack);
-	SIMPLE_GETSET_DEF(coneStack, cone.stack);
-	START_COMPLEX_GET_DEF(type, obj);
+	auto GetType = [](ComponentInLua& c) { auto& s = *CM.GetBy<Shape>(c.handle); return s.typeNames[s.shapeType]; };
+	auto SetType = [](ComponentInLua& c, const std::string& t) {auto& s = *CM.GetBy<Shape>(c.handle); s.shapeType = Shape::Type(Shape::typeMap.at(t)); };
+
+	std::function<float(ComponentInLua&)> GetParam[4];
+	for (int i = 0; i < 4; ++i)
+		GetParam[i] = [i](ComponentInLua& c) {auto& s = *CM.GetBy<Shape>(c.handle); return s.param[i]; };
+	std::function<void(ComponentInLua&, float)> SetParam[4];
+	for (int i = 0; i < 4; ++i)
+		SetParam[i] = [i](ComponentInLua& c, float v) {auto& s = *CM.GetBy<Shape>(c.handle); s.param[i] = v; };
+
+	auto Color = [](ComponentInLua& c, sol::variadic_args v, sol::this_state lua) -> sol::object
 	{
-		return typeNames[obj->shapeType];
-	}
-	END_COMPLEX_GET_DEF();
-	START_COMPLEX_SET_DEF(type, obj, val);
-	{
-		if (val.is<std::string>())
+		auto& s = *CM.GetBy<Shape>(c.handle);
+		if (v.size() == 0)
 		{
-			auto it = obj->typeMap.find(val.as<std::string>());
-			if (it != obj->typeMap.end())
-				obj->shapeType = Shape::Type(it->second);
+			return sol::object(lua, sol::in_place, s.color);
 		}
-	}
-	END_COMPLEX_SET_DEF();
-	START_MULTI_GET_DEF(color, obj, vr);
-	{
-		for (int i = 0; i < 3; ++i)
-			vr.emplace_back(lua, sol::in_place_type<float>, obj->color.data[i]);
-	}
-	END_MULTI_GET_DEF();
-	START_COMPLEX_SET_DEF(color, obj, val);
-	{
-		sol::table v = val;
-		if (v.valid())
+		else if (v.size() == 1)
 		{
-			for (int i = 0; i < 3; ++i)
+			auto vec = v[0].get<sol::optional<Vector3D>>();
+			if (vec) s.color = vec.value();
+		}
+		else if (v.size() > 1)
+		{
+			for (int i = 0; i < v.size(); ++i)
 			{
-				sol::optional<float> val = v[i + 1];
-				if (val)
-					obj->color.data[i] = val.value();
+				s.color[i] = v[i].as<float>();
 			}
 		}
-	}
-	END_COMPLEX_SET_DEF();
-	END_GETSET_DEF();
+		return sol::nil;
+	};
+
+	sol::table t = FW.lua["Component"].get<sol::table>();
+	t.new_usertype<ComponentInLua>(
+		GetTypeName<Shape>(),
+		"new", sol::constructors<ComponentInLua(ComponentHandle, ObjectHandle)>(),
+		"handle", &ComponentInLua::handle,
+		"owner", &ComponentInLua::owner,
+		"type", sol::property(GetType, SetType),
+		"cubeSize", sol::property(GetParam[0], SetParam[0]),
+		"teapotSize", sol::property(GetParam[0], SetParam[0]),
+		"sphereRadius", sol::property(GetParam[0], SetParam[0]),
+		"torusInnerRadius", sol::property(GetParam[0], SetParam[0]),
+		"coneBase", sol::property(GetParam[0], SetParam[0]),
+		"sphereSlice", sol::property(GetParam[1], SetParam[1]),
+		"torusOuterRadius", sol::property(GetParam[1], SetParam[1]),
+		"coneHeight", sol::property(GetParam[1], SetParam[1]),
+		"sphereStack", sol::property(GetParam[2], SetParam[2]),
+		"torusSide", sol::property(GetParam[2], SetParam[2]),
+		"coneSlice", sol::property(GetParam[2], SetParam[2]),
+		"torusRing", sol::property(GetParam[3], SetParam[3]),
+		"coneStack", sol::property(GetParam[3], SetParam[3]),
+		"color", sol::property(Color)
+		);
 }
 
 StringHashMap<unsigned> Shape::InitTypeMap()
@@ -98,10 +102,10 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 
 LuaComponent::~LuaComponent()
 {
-	auto& lua = FW.lua;
-	sol::table table = lua["Component"]["instance"][handle.ToUInt64()];
+	sol::state_view lua{ env.lua_state() };
+	sol::table table = lua["components"].get<sol::table>();
 	if (table.valid())
-		lua["Component"]["instance"][handle.ToUInt64()] = sol::nil;
+		table[handle.ToUInt64()] = sol::nil;
 }
 
 bool LuaComponent::SetScript(const std::string & name)
@@ -112,8 +116,11 @@ bool LuaComponent::SetScript(const std::string & name)
 	{
 		env = sol::environment{ lua, sol::create, lua.globals() };
 		sol::set_environment(env, fn); fn();
-		env["owner"] = lua["Object"]["Get"](handle.ToUInt64());
-		lua["Component"]["instance"][handle.ToUInt64()] = env.as<sol::table>();
+		auto& ownerName = OM.Get(owner)->name;
+		env["owner"] = lua["objects"][ownerName];
+		env["handle"] = handle.ToUInt64();
+		lua["components"][handle.ToUInt64()] = env.as<sol::table>();
+		scriptName = name;
 		return true;
 	}
 	return false;

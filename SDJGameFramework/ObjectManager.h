@@ -15,6 +15,7 @@ public:
 
 	ObjectHandle Add(const std::string& name, float x = 0.f, float y = 0.f, float z = 0.f);
 	ObjectHandle Add(const std::string& name, const Vector3D& pos);
+	void AddChild(const ObjectHandle& parent, const ObjectHandle& child);
 	Object* Get(const ObjectHandle & handle);
 	Object* GetByName(const std::string& name);
 	void Delete(const ObjectHandle & handle);

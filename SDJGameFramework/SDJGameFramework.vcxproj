@@ -218,6 +218,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentManager.cpp" />
     <ClCompile Include="Framework.cpp" />
+    <ClCompile Include="LuaInterfaceType.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="HandleManagers.h" />
     <ClInclude Include="Handles.h" />
     <ClInclude Include="headers.h" />
+    <ClInclude Include="LuaInterfaceType.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectManager.h" />

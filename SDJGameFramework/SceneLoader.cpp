@@ -17,38 +17,16 @@ void SceneLoader::LoadScene(const std::string file, sol::state_view& lua) const
 	LoadObject(doc, lua);
 }
 
-static void SetArgsInTable(sol::table& args, const GenericValue<UTF8<>>& d)
+static void SetMultiArgs(sol::state_view& lua, sol::variadic_results& args, const GenericValue<UTF8<>>& d)
 {
 	switch (d.GetType())
 	{
 		case Type::kNumberType:
-			args.add(d.GetFloat());
+			args.emplace_back(lua, sol::in_place_type<float>, d.GetFloat());
 			break;
 		case Type::kStringType:
-			args.add(d.GetString());
+			args.emplace_back(lua, sol::in_place_type<std::string>, d.GetString());
 			break;
-	}
-}
-
-static void SetNamedArgsInTable(sol::table& args, const std::string& name, const GenericValue<UTF8<>>& d)
-{
-	sol::state_view lua(args.lua_state());
-	switch (d.GetType())
-	{
-		case Type::kNumberType:
-			args[name] = d.GetFloat();
-			break;
-		case Type::kStringType:
-			args[name] = d.GetString();
-			break;
-		case Type::kArrayType:
-		{
-			sol::table list = lua.create_table();
-			for (auto& item : d.GetArray())
-				SetArgsInTable(list, item);
-			args[name] = list;
-		}
-		break;
 	}
 }
 
@@ -97,14 +75,31 @@ void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<true, rapidjson
 
 		if (hasVar && objData["var"].HasMember(compoName))
 		{
-			sol::table args = lua.create_table();
 			auto varData = objData["var"][compoName].GetObject();
+			sol::table compoTable = lua["components"].get<sol::table>();
 			for (auto& d : varData)
 			{
-				SetNamedArgsInTable(args, d.name.GetString(), d.value);
+				std::string vName = d.name.GetString();
+				switch (d.value.GetType())
+				{
+					case rapidjson::Type::kNumberType:
+						compoTable.traverse_set(compoHandle.ToUInt64(), vName, d.value.GetFloat());
+						break;
+					case rapidjson::Type::kStringType:
+						compoTable.traverse_set(compoHandle.ToUInt64(), vName, d.value.GetString());
+						break;
+					case rapidjson::Type::kArrayType:
+					{
+						sol::variadic_results vr;
+						for (auto& item : d.value.GetArray())
+						{
+							SetMultiArgs(lua, vr, item);
+						}
+						compoTable.traverse_set(compoHandle.ToUInt64(), vName, vr);
+					}
+					break;
+				}
 			}
-			sol::table compo = lua["Component"]["Get"](compoHandle.ToUInt64());
-			compo["Set"](compo, args);
 		}
 	}
 }

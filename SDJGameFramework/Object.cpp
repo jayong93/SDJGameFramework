@@ -3,6 +3,7 @@
 #include "HandleManagers.h"
 #include "Framework.h"
 #include "Component.h"
+#include "LuaInterfaceType.h"
 
 bool Object::AddComponent(ComponentHandle handle)
 {
@@ -19,7 +20,6 @@ bool Object::AddComponent(ComponentHandle handle)
 	compoList.emplace_back(handle);
 	compoIdxMap.emplace(handle, compoList.size() - 1);
 	compo->owner = this->handle;
-
 	return true;
 }
 
@@ -75,4 +75,18 @@ void Object::SendMsg(sol::object msg)
 	{
 		CM.Get(c)->SendMsg(msg);
 	}
+}
+
+void Object::RegisterInLua()
+{
+	FW.lua.new_usertype<ObjectInLua>(
+		"Object",
+		"new", sol::constructors<ObjectInLua(ObjectHandle)>(),
+		"handle", &ObjectInLua::handle,
+		"position", sol::property(&ObjectInLua::GetPosition, &ObjectInLua::SetPosition),
+		"valid", sol::property(&ObjectInLua::IsValid),
+		"Move", sol::overload(sol::resolve<void(const Vector3D&)>(&ObjectInLua::Move), sol::resolve<void(float,float,float)>(&ObjectInLua::Move)),
+		"component", &ObjectInLua::component,
+		"child", &ObjectInLua::child
+		);
 }

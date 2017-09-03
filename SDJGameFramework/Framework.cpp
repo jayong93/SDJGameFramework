@@ -11,6 +11,8 @@ void Framework::Init()
 	// 시스템 초기화
 	LuaStateInitialize(lua);
 	Vector3D::RegisterInLua(lua);
+	Object::RegisterInLua();
+	Shape::RegisterInLua();
 	LoadScripts();
 
 	render = std::make_unique<RenderSystem>();
@@ -108,10 +110,6 @@ void Framework::LoadScripts()
 			size_t extStartIdx = strlen(fData.cFileName) - 4;
 			fData.cFileName[extStartIdx] = 0;
 			lua["Component"]["prototype"][fData.cFileName] = fn;
-
-			size_t type = GetHash(fData.cFileName);
-			lua["Component"]["get"][type] = lua.create_table();
-			lua["Component"]["set"][type] = lua.create_table();
 		} while (FindNextFileA(ret, &fData));
 
 		FindClose(ret);
