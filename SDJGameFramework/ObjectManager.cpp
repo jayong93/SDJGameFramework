@@ -119,6 +119,9 @@ void ObjectManager::Clear()
 
 bool ObjectManager::IsValid(const ObjectHandle & handle) const
 {
+	if (!handle)
+		return false;
+
 	if (handleList.size() <= handle.index)
 		return false;
 

@@ -93,6 +93,9 @@ bool ComponentManager::IsLuaComponent(const ComponentHandle & handle) const
 
 bool ComponentManager::IsValid(const ComponentHandle & handle) const
 {
+	if (!handle)
+		return false;
+
 	if (handle.index >= handleList.size())
 		return false;
 
