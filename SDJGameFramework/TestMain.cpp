@@ -122,6 +122,7 @@ TEST_F(ObjectTestFixture, AddComponent)
 	auto obj2 = OM.Get(hObj2);
 	obj2->AddComponent(compo);
 	EXPECT_TRUE(CM.Get(compo)->owner == hObj1);
+	EXPECT_TRUE(obj2->compoList.size() == 0);
 }
 
 TEST_F(ObjectTestFixture, DelComponent)
@@ -172,6 +173,16 @@ TEST(ComponentTest, Add)
 	EXPECT_FALSE(errHandle);
 	EXPECT_TRUE(CM.Size<Shape>() == 2);
 
+	auto errHandle2 = CM.Add("wrong", obj);
+	EXPECT_FALSE(errHandle);
+	EXPECT_TRUE(OM.Get(obj)->compoList.size() == 1);
+	EXPECT_FALSE(OM.Get(obj)->HasComponent("wrong"));
+
+	auto errHandle3 = CM.AddLuaComponent("abc", obj);
+	EXPECT_FALSE(errHandle);
+	EXPECT_TRUE(OM.Get(obj)->compoList.size() == 1);
+	EXPECT_FALSE(OM.Get(obj)->HasComponent("abc"));
+
 	FW.CleanUp();
 }
 
@@ -204,7 +215,6 @@ TEST_F(ComponentTestFixture, Delete)
 	auto objHandle = OM.Add("test");
 	auto obj = OM.Get(objHandle);
 
-	obj->AddComponent(hCompo[1]);
 	CM.Delete(hCompo[1]);
 	CM.Delete(Handle());
 	EXPECT_TRUE(obj->compoList.size() == 0);
@@ -228,7 +238,6 @@ TEST_F(ComponentTestFixture, ReuseFreeIndex)
 TEST_F(ComponentTestFixture, Type)
 {
 	EXPECT_TRUE(CM.Type(hCompo[1]) == GetHash("Shape"));
-	auto c = CM.GetBy<Shape>(hCompo[1]);
 }
 
 struct LuaTestFixture : public testing::Test
@@ -263,7 +272,7 @@ TEST_F(LuaTestFixture, SolTable)
 	lua.safe_script("t = {}");
 	auto t = lua["t"].get<sol::optional<sol::table>>();
 	ASSERT_TRUE(t);
-	
+
 	lua.safe_script("t.a = 10");
 	auto a = (*t)["a"].get<sol::optional<int>>();
 	ASSERT_TRUE(a);
@@ -323,6 +332,7 @@ a.c=4
 	a["d"] = 10;
 	obj = mt["d"];
 	EXPECT_TRUE(obj.as<int>() == 10);
+
 	a.push();
 	lua_pushstring(lua, "d");
 	lua_pushinteger(lua, 10);
@@ -369,6 +379,8 @@ c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "sphere", 10, 20, 30
 
 	lua.safe_script("compo1.color = {1, 2, 3}");
 	EXPECT_TRUE(c1->color == Vector3D(1, 2, 3));
+	lua.safe_script("compo1.color = Vector.new(9,2,4)");
+	EXPECT_TRUE(c1->color == Vector3D(9, 2, 4));
 
 	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
 	EXPECT_TRUE(c2->sphere.radius == 10);
