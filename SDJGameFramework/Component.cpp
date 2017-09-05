@@ -100,7 +100,7 @@ StringHashMap<unsigned> Shape::InitTypeMap()
 
 LuaComponent::~LuaComponent()
 {
-	sol::state_view lua{ env.lua_state() };
+	sol::state_view lua{ FW.lua };
 	sol::table table = lua["components"].get<sol::table>();
 	if (table.valid())
 		table[handle.ToUInt64()] = sol::nil;
