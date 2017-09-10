@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "Components.h"
 #include "Util.h"
 
 #define CM ComponentManager::Instance()

@@ -1,0 +1,40 @@
+#pragma once
+#include "Component.h"
+
+% for c in data:
+struct ${c["name"]} : public Component
+{
+    virtual ~${c["name"]}() {}
+
+    % for v in c["multi_name_var"]:
+    union {
+        % for n in v["name"]:
+        ${v["type"]} ${n};
+        % endfor
+    };
+    % endfor
+
+    % for v in c["simple_var"]:
+    ${v["type"]} ${v["name"]};
+    % endfor
+
+    % for v in c["enum"]:
+    enum class ${v["type"]} { \
+        % for val in v["value"]:
+${val}${', ' if not loop.last else ' '}\
+        % endfor
+} ${v["name"]};
+    static const char* stringFrom${v["type"]}[];
+    static const std::map<std::string, ${v["type"]}> stringTo${v["type"]};
+
+    % endfor
+    static MessageMap InitMsgMap() {return MessageMap();}
+    static void RegisterInLua();
+
+private:
+    % for v in c["enum"]:
+    static std::map<std::string, ${v["type"]}> GetEnum${v["type"]}Map();
+    % endfor
+};
+
+% endfor

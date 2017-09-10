@@ -1,0 +1,61 @@
+[
+    {
+        "name": "Shape",
+        "simple_var": [
+            {
+                "name": "color",
+                "type": "Vector3D",
+                "table_setter": true
+            }
+        ],
+        "multi_name_var": [
+            {
+                "name": [
+                    "cubeSize",
+                    "teapotSize",
+                    "sphereRadius",
+                    "torusInnerRadius",
+                    "coneBase"
+                ],
+                "type": "float"
+            },
+            {
+                "name": [
+                    "sphereSlice",
+                    "torusOuterRadius",
+                    "coneHeight"
+                ],
+                "type": "float"
+            },
+            {
+                "name": [
+                    "sphereStack",
+                    "torusSide",
+                    "coneSlice"
+                ],
+                "type": "float"
+            },
+            {
+                "name": [
+                    "torusRing",
+                    "coneStack"
+                ],
+                "type": "float"
+            }
+        ],
+        "enum": [
+            {
+                "type": "Type",
+                "name": "type",
+                "value": [
+                    "NONE",
+                    "CUBE",
+                    "SPHERE",
+                    "CONE",
+                    "TORUS",
+                    "TEAPOT"
+                ]
+            }
+        ]
+    }
+]

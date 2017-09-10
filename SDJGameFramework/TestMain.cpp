@@ -358,8 +358,8 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	auto& lua = FW.lua;
 	Shape* c1 = CM.GetBy<Shape>(OM.Get(obj1)->compoList[0]);
 	Shape* c2 = CM.GetBy<Shape>(OM.Get(obj2)->compoList[0]);
-	c1->shapeType = Shape::CUBE;
-	c1->cube.size = 4;
+	c1->type = Shape::Type::CUBE;
+	c1->cubeSize = 4;
 	c1->color.Set(0.4f, 0.4f, 0.2f);
 
 	lua.safe_script(R"(
@@ -367,7 +367,7 @@ obj1 = objects.obj1
 compo1 = obj1.component.Shape
 size, color = compo1.cubeSize, compo1.color
 c2 = objects.obj2.component.Shape
-c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "sphere", 10, 20, 30
+c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "SPHERE", 10, 20, 30
 )", errFn);
 
 	sol::optional<Vector3D> color = lua["color"];
@@ -375,17 +375,15 @@ c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "sphere", 10, 20, 30
 	ASSERT_TRUE(color);
 	EXPECT_TRUE(*color == Vector3D(0.4f, 0.4f, 0.2f));
 	EXPECT_TRUE(size.get_type() == sol::type::number);
-	EXPECT_TRUE(size.as<float>() == c1->cube.size);
+	EXPECT_TRUE(size.as<float>() == c1->cubeSize);
 
-	lua.safe_script("compo1.color = {1, 2, 3}");
-	EXPECT_TRUE(c1->color == Vector3D(1, 2, 3));
 	lua.safe_script("compo1.color = Vector.new(9,2,4)");
 	EXPECT_TRUE(c1->color == Vector3D(9, 2, 4));
 
-	EXPECT_TRUE(c2->shapeType == Shape::SPHERE);
-	EXPECT_TRUE(c2->sphere.radius == 10);
-	EXPECT_TRUE(c2->sphere.slice == 20);
-	EXPECT_TRUE(c2->sphere.stack == 30);
+	EXPECT_TRUE(c2->type == Shape::Type::SPHERE);
+	EXPECT_TRUE(c2->sphereRadius == 10);
+	EXPECT_TRUE(c2->sphereSlice == 20);
+	EXPECT_TRUE(c2->sphereStack == 30);
 }
 
 TEST_F(LuaTestFixture, Vector3DUserType)
@@ -507,8 +505,8 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 
 	auto shape1 = CM.GetBy<Shape>(obj1->GetComponent("Shape"));
 	ASSERT_TRUE(shape1);
-	EXPECT_TRUE(shape1->shapeType == Shape::Type::CUBE);
-	EXPECT_TRUE(shape1->cube.size == 5.f);
+	EXPECT_TRUE(shape1->type == Shape::Type::CUBE);
+	EXPECT_TRUE(shape1->cubeSize == 5.f);
 	EXPECT_TRUE(shape1->color == Vector3D(1.f, 0.f, 0.f));
 
 	auto luaCompo = CM.GetBy<LuaComponent>(obj1->GetComponent("Plus"));
@@ -531,9 +529,9 @@ testVar, nilVar = compo1.testVar, compo1.fsf
 
 	auto shape2 = CM.GetBy<Shape>(obj2->GetComponent("Shape"));
 	ASSERT_TRUE(shape2);
-	EXPECT_TRUE(shape2->shapeType == Shape::Type::SPHERE);
-	EXPECT_TRUE(shape2->sphere.radius == 3);
-	EXPECT_TRUE(shape2->sphere.slice == 20);
-	EXPECT_TRUE(shape2->sphere.stack == 20);
+	EXPECT_TRUE(shape2->type == Shape::Type::SPHERE);
+	EXPECT_TRUE(shape2->sphereRadius == 3);
+	EXPECT_TRUE(shape2->sphereSlice == 20);
+	EXPECT_TRUE(shape2->sphereStack == 20);
 }
 #endif

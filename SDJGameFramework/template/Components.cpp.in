@@ -1,0 +1,86 @@
+#include "stdafx.h"
+#include "Components.h"
+#include "HandleManagers.h"
+#include "Framework.h"
+#include "LuaInterfaceType.h"
+\
+<%def name="getter(cname, vname)">\
+[](ComponentInLua& c) { auto& s = *CM.GetBy<${cname}>(c.handle); return s.${vname};}\
+</%def>\
+<%def name="setter(cname, vname, type)">\
+[](ComponentInLua& c, ${type} v) { auto& s = *CM.GetBy<${cname}>(c.handle); s.${vname} = v;}\
+</%def>\
+<%def name="table_setter(cname, vname, type)">\
+[](ComponentInLua& c, sol::object v) \
+{ \
+auto& s = *CM.GetBy<${cname}>(c.handle); \
+if (v.is<${type}>()) \
+s.${vname} = v.as<${type}>(); \
+else if(v.is<sol::table>()) \
+s.${vname} = v.as<sol::table>(); \
+}\
+</%def>\
+<%def name="enum_getter(cname, vname, type)">\
+[](ComponentInLua& c) { auto& s = *CM.GetBy<${cname}>(c.handle); return std::string(${cname}::stringFrom${type}[size_t(s.${vname})]);}\
+</%def>\
+<%def name="enum_setter(cname, vname, type)">\
+[](ComponentInLua& c, std::string& str)\
+{\
+auto& s = *CM.GetBy<${cname}>(c.handle);\
+auto it = ${cname}::stringTo${type}.find(str);\
+if(it != ${cname}::stringTo${type}.end())\
+s.${vname} = it->second;\
+}\
+</%def>\
+
+% for c in data:
+\
+    % for e in c["enum"]:
+const char* ${c["name"]}::stringFrom${e["type"]}[] = { \
+        % for val in e["value"]:
+"${val}"${', ' if not loop.last else ' '}\
+        % endfor
+};
+const std::map<std::string, ${c["name"]}::${e["type"]}> ${c["name"]}::stringTo${e["type"]} = ${c["name"]}::GetEnum${e["type"]}Map();
+std::map<std::string, ${c["name"]}::${e["type"]}> ${c["name"]}::GetEnum${e["type"]}Map()
+{
+    std::map<std::string, ${c["name"]}::${e["type"]}> map;
+    int i=0;
+    for (auto n : stringFrom${e["type"]})
+        map[n] = ${c["name"]}::${e["type"]}(i++);
+    return map;
+}
+    % endfor
+
+void ${c["name"]}::RegisterInLua()
+{
+    % for v in c["multi_name_var"]:
+    auto multiVarProperties${loop.index+1} = sol::property(${getter(c["name"], v["name"][0])},
+        ${setter(c["name"], v["name"][0], v["type"])});
+    % endfor
+
+    FW.componentTable.new_usertype<ComponentInLua>("${c["name"]}",
+        "new", sol::constructors<ComponentInLua(ComponentHandle, ObjectHandle)>(),
+        "handle", &ComponentInLua::handle,
+        "owner", &ComponentInLua::owner,
+    % for v in c["simple_var"]:
+        "${v["name"]}", sol::property(${getter(c["name"], v["name"])},
+        % if v.get("table_setter"):
+            ${table_setter(c["name"], v["name"], v["type"])}),
+        % else:
+            ${setter(c["name"], v["name"], v["type"])}),
+        % endif
+    % endfor
+    % for v in c["multi_name_var"]:
+        % for n in v["name"]:
+        "${n}", multiVarProperties${loop.parent.index+1},
+        % endfor
+    % endfor
+    % for v in c["enum"]:
+        "${v["name"]}", sol::property(${enum_getter(c["name"], v["name"], v["type"])},
+            ${enum_setter(c["name"], v["name"], v["type"])})${',' if not loop.last else ''}
+    % endfor
+    );
+}
+
+% endfor

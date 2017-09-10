@@ -75,6 +75,9 @@
     <ClCompile Include="LuaInterfaceType.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Components.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Action.h">
@@ -133,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="LuaInterfaceType.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Components.h">
+      <Filter>헤더 파일\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

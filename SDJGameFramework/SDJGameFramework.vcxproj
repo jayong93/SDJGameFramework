@@ -99,26 +99,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -133,6 +139,21 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
     <ClCompile>
@@ -147,6 +168,21 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -161,6 +197,21 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
     <ClCompile>
@@ -176,6 +227,21 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -194,6 +260,21 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -212,11 +293,27 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python "$(ProjectDir)instaning_template.py"</Command>
+      <Message>Make Components</Message>
+      <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
+      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <TreatOutputAsContent>false</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ActionList.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentManager.cpp" />
+    <ClCompile Include="Components.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="LuaInterfaceType.cpp" />
     <ClCompile Include="main.cpp" />
@@ -238,6 +335,7 @@
     <ClInclude Include="ActionList.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentManager.h" />
+    <ClInclude Include="Components.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="HandleManagers.h" />
     <ClInclude Include="Handles.h" />

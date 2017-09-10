@@ -31,22 +31,22 @@ void RenderSystem::Render()
 		}
 
 		glColor3fv(s.color);
-		switch (s.shapeType)
+		switch (s.type)
 		{
-			case Shape::CUBE:
-				glutWireCube(s.cube.size);
+			case Shape::Type::CUBE:
+				glutWireCube(s.cubeSize);
 				break;
-			case Shape::SPHERE:
-				glutWireSphere(s.sphere.radius, s.sphere.slice, s.sphere.stack);
+			case Shape::Type::SPHERE:
+				glutWireSphere(s.sphereRadius, s.sphereSlice, s.sphereStack);
 				break;
-			case Shape::CONE:
-				glutWireCone(s.cone.base, s.cone.height, s.cone.slice, s.cone.stack);
+			case Shape::Type::CONE:
+				glutWireCone(s.coneBase, s.coneHeight, s.coneSlice, s.coneStack);
 				break;
-			case Shape::TORUS:
-				glutWireTorus(s.torus.innerRadius, s.torus.outerRadius, s.torus.side, s.torus.ring);
+			case Shape::Type::TORUS:
+				glutWireTorus(s.torusInnerRadius, s.torusOuterRadius, s.torusSide, s.torusRing);
 				break;
-			case Shape::TEAPOT:
-				glutWireTeapot(s.teapot.size);
+			case Shape::Type::TEAPOT:
+				glutWireTeapot(s.teapotSize);
 				break;
 		}
 
