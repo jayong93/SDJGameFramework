@@ -3,7 +3,7 @@ import io
 import json
 
 data = None
-with io.open("template\\test.json") as d:
+with io.open("template\\Components.json") as d:
     data = json.loads(d.read())
 
 header_tmp = Template(filename="template\\Components.h.in", output_encoding='utf-8')

@@ -151,7 +151,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -180,7 +180,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -209,7 +209,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -239,7 +239,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -272,7 +272,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -305,7 +305,7 @@
       <Command>python "$(ProjectDir)instaning_template.py"</Command>
       <Message>Make Components</Message>
       <Outputs>$(ProjectDir)Components.h;$(ProjectDir)Components.cpp;%(Outputs)</Outputs>
-      <Inputs>$(ProjectDir)template\*.in;%(Inputs)</Inputs>
+      <Inputs>$(ProjectDir)template\*.in;$(ProjectDir)template\*.json;%(Inputs)</Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
     </CustomBuildStep>
   </ItemDefinitionGroup>
