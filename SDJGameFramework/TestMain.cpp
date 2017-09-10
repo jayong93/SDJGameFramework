@@ -414,6 +414,32 @@ print(v2norm.x, v2norm.y, v2norm.z)
 	EXPECT_TRUE(v2->z == 6.f);
 }
 
+TEST_F(LuaTestFixture, StdVector)
+{
+	sol::state_view lua{ FW.lua };
+
+	vector<float> v;
+	for (int i = 0; i < 100; ++i)
+	{
+		v.emplace_back(i / 100.f);
+	}
+
+	lua["v"] = &v;
+	lua["v2"] = v;
+	lua.safe_script(R"(num = #v)");
+	EXPECT_TRUE(lua["num"].get<int>() == 100);
+	lua.safe_script(R"(v2[1] = 10)");
+	EXPECT_TRUE(v[0] == 0);
+	lua.safe_script(R"(v[1] = 10)");
+	EXPECT_TRUE(v[0] == 10);
+	lua.safe_script(R"(
+for i=1, #v do
+	v[i] = v[i] + 1
+end
+)", FW.luaErrFunc);
+	EXPECT_TRUE(v[0] == 11);
+}
+
 struct MainFrameworkTestFixture : public testing::Test
 {
 	MainFrameworkTestFixture()
@@ -447,8 +473,7 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
 	}
 
-	auto& compoTable = FW.lua["Component"].get<sol::table>();
-	ASSERT_TRUE(compoTable);
+	ASSERT_TRUE(FW.componentTable);
 	auto& instances = FW.lua["components"].get<sol::table>();
 	ASSERT_TRUE(instances);
 

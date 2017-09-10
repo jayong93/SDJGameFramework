@@ -156,7 +156,7 @@ ComponentHandle ComponentManager::Add_(const std::string& type, const std::strin
 
 	if (hashedType != GetTypeHash<LuaComponent>())
 	{
-		FW.lua["components"][handle.ToUInt64()] = FW.lua["Component"][realType]["new"](handle, owner);
+		FW.lua["components"][handle.ToUInt64()] = FW.componentTable[realType]["new"](handle, owner);
 		FW.lua["objects"][obj->name]["component"][type] = FW.lua["components"][handle.ToUInt64()];
 	}
 

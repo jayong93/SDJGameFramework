@@ -73,6 +73,7 @@ void Framework::CleanUp()
 	MM.Clear();
 	timer.Clear();
 #ifdef SDJ_TEST_BUILD
+	componentTable = sol::table();
 	lua = sol::state{};
 #endif
 }
@@ -109,7 +110,7 @@ void Framework::LoadScripts()
 
 			size_t extStartIdx = strlen(fData.cFileName) - 4;
 			fData.cFileName[extStartIdx] = 0;
-			lua["Component"]["prototype"][fData.cFileName] = fn;
+			componentTable.traverse_set("prototype", fData.cFileName, fn);
 		} while (FindNextFileA(ret, &fData));
 
 		FindClose(ret);

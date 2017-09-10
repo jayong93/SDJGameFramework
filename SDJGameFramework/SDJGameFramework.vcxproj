@@ -237,7 +237,6 @@
   <ItemGroup>
     <ClInclude Include="ActionList.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="ComponentGetSetMacro.h" />
     <ClInclude Include="ComponentManager.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="HandleManagers.h" />

@@ -61,8 +61,7 @@ void Shape::RegisterInLua()
 		}
 	};
 
-	sol::table t = FW.lua["Component"].get<sol::table>();
-	t.new_usertype<ComponentInLua>(
+	FW.componentTable.new_usertype<ComponentInLua>(
 		GetTypeName<Shape>(),
 		"new", sol::constructors<ComponentInLua(ComponentHandle, ObjectHandle)>(),
 		"handle", &ComponentInLua::handle,
@@ -109,7 +108,7 @@ LuaComponent::~LuaComponent()
 bool LuaComponent::SetScript(const std::string & name)
 {
 	auto& lua = FW.lua;
-	sol::protected_function fn = lua["Component"]["prototype"][name];
+	sol::protected_function fn = FW.componentTable["prototype"][name];
 	if (fn.valid())
 	{
 		env = sol::environment{ lua, sol::create, lua.globals() };

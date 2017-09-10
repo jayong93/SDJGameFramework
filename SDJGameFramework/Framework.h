@@ -28,7 +28,7 @@ struct Framework
 	void DisableFrameLimit() { limitedTime = 0.; }
 
 	sol::state lua;
-
+	sol::table componentTable;
 	std::function<sol::protected_function_result(lua_State*, sol::protected_function_result)> luaErrFunc;
 
 private:
