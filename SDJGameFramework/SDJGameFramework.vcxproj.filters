@@ -22,6 +22,12 @@
     <Filter Include="헤더 파일\Component">
       <UniqueIdentifier>{474f5102-1e4f-44ba-b839-0afce8dda963}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Component">
+      <UniqueIdentifier>{76980019-e10e-4827-b9fa-6446313ce00a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Object">
+      <UniqueIdentifier>{cb671aa0-9490-4003-aa6f-8fae2376244c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -36,19 +42,7 @@
     <ClCompile Include="Framework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Systems.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MessageManager.cpp">
@@ -75,8 +69,20 @@
     <ClCompile Include="LuaInterfaceType.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentManager.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
     <ClCompile Include="Components.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>소스 파일\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>소스 파일\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

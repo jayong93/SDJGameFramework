@@ -5,8 +5,6 @@
 #include "Util.h"
 #include "LuaInterfaceType.h"
 
-#define MSG_HANDLER(Component, Table) [](void* Component, sol::table& Table) -> bool
-
 Component::~Component() {}
 
 void Component::SendMsg(sol::object& args)

@@ -438,6 +438,27 @@ end
 	EXPECT_TRUE(v[0] == 11);
 }
 
+TEST_F(LuaTestFixture, UserType)
+{
+	sol::state_view lua{ FW.lua };
+	
+	struct TTT {
+		int x=0;
+	};
+
+	lua.new_usertype<TTT>("TTT", "x", &TTT::x);
+
+	TTT t;
+	lua["t1"] = t;
+	lua["t2"] = &t;
+
+	lua.safe_script(R"(t1.x = 10)", FW.luaErrFunc);
+	EXPECT_TRUE(t.x == 0);
+
+	lua.safe_script(R"(t2.x = 10)", FW.luaErrFunc);
+	EXPECT_TRUE(t.x == 10);
+}
+
 struct MainFrameworkTestFixture : public testing::Test
 {
 	MainFrameworkTestFixture()

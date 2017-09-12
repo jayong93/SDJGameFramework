@@ -99,32 +99,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)glut\include;$(ProjectDir)luajit\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)luajit\include;$(ProjectDir)glut\include;$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
+    <CustomBuildAfterTargets>Compile</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
