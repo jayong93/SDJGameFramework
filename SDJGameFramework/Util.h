@@ -21,5 +21,3 @@ inline std::string GetTypeName()
 	size_t pos = typeName.find(' ');
 	return typeName.substr(pos + 1);
 }
-
-void LuaStateInitialize(sol::state_view& lua);

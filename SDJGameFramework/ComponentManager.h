@@ -17,6 +17,8 @@ public:
 	virtual ComponentHandle Delete(size_t i) = 0;
 	virtual Component* Add() = 0;
 	virtual void Clear() = 0;
+
+	std::string typeName;
 };
 
 template <class T>
@@ -29,6 +31,7 @@ public:
 	{
 		static_assert(std::is_base_of<Component, T>::value, "T isn't derived class of Component");
 		arr.reserve(20);
+		typeName = GetTypeName<T>();
 	}
 	virtual ~CompoList() {}
 
@@ -102,6 +105,7 @@ public:
 	void Clear();
 	void ClearAndUnregister();
 	size_t Type(const ComponentHandle& handle) const;
+	std::string TypeName(const ComponentHandle& handle) const;
 
 	template <typename T>
 	ComponentHandle Add(const ObjectHandle& owner);

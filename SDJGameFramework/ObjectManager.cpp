@@ -49,7 +49,6 @@ ObjectHandle ObjectManager::Add(const std::string& name, float x, float y, float
 		objectNameMap.emplace(name, handle);
 	}
 
-	FW.lua["objects"][name] = FW.lua["Object"]["new"](handle);
 	return handle;
 }
 

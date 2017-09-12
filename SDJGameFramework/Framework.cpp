@@ -9,10 +9,8 @@ using namespace rapidjson;
 void Framework::Init()
 {
 	// 시스템 초기화
-	LuaStateInitialize(lua);
-	Vector3D::RegisterInLua(lua);
-	Object::RegisterInLua();
-	Shape::RegisterInLua();
+	LuaInit();
+	TypeInit();
 	LoadScripts();
 
 	render = std::make_unique<RenderSystem>();
@@ -65,6 +63,7 @@ void Framework::LoadScene(const std::string & fileName)
 
 void Framework::CleanUp()
 {
+#ifdef SDJ_TEST_BUILD
 	render.reset();
 	logic.reset();
 
@@ -72,8 +71,9 @@ void Framework::CleanUp()
 	CM.ClearAndUnregister();
 	MM.Clear();
 	timer.Clear();
-#ifdef SDJ_TEST_BUILD
-	componentTable = sol::table();
+
+	luaScriptTable = sol::table();
+	typeTable = sol::table();
 	lua = sol::state{};
 #endif
 }
@@ -110,9 +110,24 @@ void Framework::LoadScripts()
 
 			size_t extStartIdx = strlen(fData.cFileName) - 4;
 			fData.cFileName[extStartIdx] = 0;
-			componentTable.traverse_set("prototype", fData.cFileName, fn);
+			luaScriptTable.set(fData.cFileName, fn);
 		} while (FindNextFileA(ret, &fData));
 
 		FindClose(ret);
 	}
+}
+
+void Framework::LuaInit()
+{
+	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+	luaScriptTable = sol::table(lua, sol::create);
+	typeTable = sol::table(lua, sol::create);
+}
+
+void Framework::TypeInit()
+{
+	Vector3D::RegisterInLua(lua);
+	Object::RegisterInLua();
+	Component::RegisterInLua();
+	Shape::RegisterInLua();
 }

@@ -55,6 +55,15 @@ size_t ComponentManager::Type(const ComponentHandle& handle) const
 	return entry.realType;
 }
 
+std::string ComponentManager::TypeName(const ComponentHandle & handle) const
+{
+	if (!IsValid(handle)) return std::string();
+
+	const HandleEntry& entry = handleList[handle.index];
+	auto cList = compoMap.at(entry.type);
+	return cList->typeName;
+}
+
 ComponentHandle ComponentManager::AddLuaComponent(const std::string & scriptName, const ObjectHandle & owner)
 {
 	auto handle = Add_(GetTypeName<LuaComponent>(), scriptName, owner);
@@ -67,14 +76,6 @@ ComponentHandle ComponentManager::AddLuaComponent(const std::string & scriptName
 	{
 		OM.Get(compo->owner)->DelComponent(handle);
 		return ComponentHandle();
-	}
-
-	auto obj = OM.Get(owner);
-	FW.lua["components"][handle.ToUInt64()] = compo->env;
-	auto compoTable = FW.lua["objects"][obj->name]["component"].get<sol::optional<sol::table>>();
-	if (compoTable)
-	{
-		compoTable->set(scriptName, FW.lua["components"][handle.ToUInt64()]);
 	}
 
 	return handle;
@@ -152,12 +153,6 @@ ComponentHandle ComponentManager::Add_(const std::string& type, const std::strin
 	{
 		Delete(handle);
 		return ComponentHandle();
-	}
-
-	if (hashedType != GetTypeHash<LuaComponent>())
-	{
-		FW.lua["components"][handle.ToUInt64()] = FW.componentTable[realType]["new"](handle, owner);
-		FW.lua["objects"][obj->name]["component"][type] = FW.lua["components"][handle.ToUInt64()];
 	}
 
 	return handle;

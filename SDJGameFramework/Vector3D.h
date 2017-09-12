@@ -7,6 +7,12 @@ struct Vector3D
 		y{ y },
 		z{ z }
 	{}
+	Vector3D(sol::table args)
+	{
+		int limit = (args.size() > 3) ? 3 : args.size();
+		for (int i = 0; i < limit; ++i)
+			data[i] = args[i + 1];
+	}
 
 	union
 	{
@@ -16,14 +22,6 @@ struct Vector3D
 		};
 		float data[3];
 	};
-
-	Vector3D& operator=(sol::table args)
-	{
-		int limit = (args.size() > 3) ? 3 : args.size();
-		for (int i = 0; i < limit; ++i)
-			data[i] = args[i + 1];
-		return *this;
-	}
 
 	void Set(float x, float y, float z)
 	{

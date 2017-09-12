@@ -3,7 +3,6 @@
 #include "MessageManager.h"
 #include "Framework.h"
 #include "Util.h"
-#include "LuaInterfaceType.h"
 
 Component::~Component() {}
 
@@ -24,25 +23,39 @@ void Component::SendMsg(sol::object& args)
 	}
 }
 
+void Component::RegisterInLua()
+{
+	FW.lua.new_usertype<Component>("Component",
+		"new", sol::no_constructor,
+		"get", [](uint64_t id) -> sol::object {
+		if (CM.IsLuaComponent(id))
+		{
+			auto compo = CM.GetBy<LuaComponent>(id);
+			return compo->env;
+		}
+
+		auto typeName = CM.TypeName(id);
+		sol::table type = FW.typeTable[typeName].get<sol::table>();
+		sol::protected_function getFn = type["get"].get<sol::protected_function>();
+		return getFn(id).get<sol::object>();
+	}
+		);
+}
+
 LuaComponent::~LuaComponent()
 {
-	sol::state_view lua{ FW.lua };
-	sol::table table = lua["components"].get<sol::table>();
-	if (table.valid())
-		table[handle.ToUInt64()] = sol::nil;
 }
 
 bool LuaComponent::SetScript(const std::string & name)
 {
 	auto& lua = FW.lua;
-	sol::protected_function fn = FW.componentTable["prototype"][name];
+	sol::protected_function fn = FW.luaScriptTable[name];
 	if (fn.valid())
 	{
 		env = sol::environment{ lua, sol::create, lua.globals() };
 		sol::set_environment(env, fn); fn();
-		auto& ownerName = OM.Get(owner)->name;
-		env["owner"] = lua["objects"][ownerName];
-		env["handle"] = handle.ToUInt64();
+		env["owner_id"] = owner.ToUInt64();
+		env["id"] = handle.ToUInt64();
 		scriptName = name;
 		return true;
 	}

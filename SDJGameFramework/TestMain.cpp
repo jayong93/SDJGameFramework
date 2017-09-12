@@ -283,28 +283,28 @@ TEST_F(LuaTestFixture, ControlObject)
 {
 	auto& lua = FW.lua;
 	lua.safe_script(R"(
-obj1 = objects.obj1
+obj1 = Object.get_by_name("obj1")
 obj1.position = Vector.new(3,4,5)
 	)", errFn
 	);
 
 	// GetObject 테스트
-	ObjectHandle hObj1 = lua["obj1"]["handle"];
-	EXPECT_TRUE(hObj1 == obj1);
+	uint64_t hObj1 = lua["obj1"]["id"];
+	EXPECT_TRUE(hObj1 == obj1.ToUInt64());
 
 	// MoveTo 테스트
 	auto obj1Ptr = OM.Get(obj1);
 	EXPECT_TRUE(obj1Ptr->position == Vector3D(3, 4, 5));
 
 	// Move 테스트
-	lua.safe_script(R"(obj1:Move(1,0,1))", errFn);
+	lua.safe_script(R"(obj1:move(1,0,1))", errFn);
 	EXPECT_TRUE(obj1Ptr->position == Vector3D(4, 4, 6));
 
 	// Position 테스트
 	Vector3D pos = lua["obj1"]["position"].get<Vector3D>();
 	EXPECT_TRUE(pos == Vector3D(4.f, 4.f, 6.f));
 
-	lua.safe_script(R"(ret = obj1.component.Shape)", errFn);
+	lua.safe_script(R"(ret = obj1:get_component("Shape"))", errFn);
 	EXPECT_TRUE(lua["ret"].get_type() == sol::type::userdata);
 }
 
@@ -363,10 +363,10 @@ TEST_F(LuaTestFixture, ControlComponentViaGetSet)
 	c1->color.Set(0.4f, 0.4f, 0.2f);
 
 	lua.safe_script(R"(
-obj1 = objects.obj1
-compo1 = obj1.component.Shape
+obj1 = Object.get_by_name("obj1")
+compo1 = obj1:get_component("Shape")
 size, color = compo1.cubeSize, compo1.color
-c2 = objects.obj2.component.Shape
+c2 = Object.get_by_name("obj2"):get_component("Shape")
 c2.type, c2.sphereRadius, c2.sphereSlice, c2.sphereStack = "SPHERE", 10, 20, 30
 )", errFn);
 
@@ -492,14 +492,6 @@ TEST_F(MainFrameworkTestFixture, SceneLoading)
 		EXPECT_TRUE(objArr[i]->position == expectedPos[i]);
 	}
 
-	ASSERT_TRUE(FW.componentTable);
-	auto& instances = FW.lua["components"].get<sol::table>();
-	ASSERT_TRUE(instances);
-
-	int i = 0;
-	instances.for_each([&i](auto& a, auto& b) {i++; });
-	EXPECT_TRUE(i == 4);
-
 	FW.lua["a"] = 10;
 	FW.MainLoop();
 
@@ -536,8 +528,8 @@ TEST_F(MainFrameworkTestFixture, SceneLoadingWithCompoVar)
 	EXPECT_TRUE(testVar.value() == 50);
 
 	FW.lua.safe_script(R"(
-obj1 = objects.obj1
-compo1 = obj1.component.Plus
+obj1 = Object.get_by_name("obj1")
+compo1 = obj1:get_component("Plus")
 testVar, nilVar = compo1.testVar, compo1.fsf
 )", FW.luaErrFunc);
 	sol::optional<int> testVarInLua = FW.lua["testVar"];

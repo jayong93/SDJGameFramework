@@ -65,16 +65,12 @@ void GameLogic::Update(double time)
 	auto& lua = FW.lua;
 	for (auto& c : this->scriptList)
 	{
-		sol::table instance = lua["components"][uint64_t(c.handle)];
-		if (instance)
+		sol::protected_function fn = c.env["Update"];
+		if (fn)
 		{
-			sol::protected_function fn = instance["Update"];
-			if (fn)
-			{
-				auto ret = fn(time);
-				if (!ret.valid())
-					perror(ret.get<string>().c_str());
-			}
+			auto ret = fn(time);
+			if (!ret.valid())
+				perror(ret.get<string>().c_str());
 		}
 	}
 }

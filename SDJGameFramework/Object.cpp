@@ -3,7 +3,6 @@
 #include "HandleManagers.h"
 #include "Framework.h"
 #include "Component.h"
-#include "LuaInterfaceType.h"
 
 bool Object::AddComponent(ComponentHandle handle)
 {
@@ -79,14 +78,18 @@ void Object::SendMsg(sol::object msg)
 
 void Object::RegisterInLua()
 {
-	FW.lua.new_usertype<ObjectInLua>(
+	FW.lua.new_usertype<Object>(
 		"Object",
-		"new", sol::constructors<ObjectInLua(ObjectHandle)>(),
-		"handle", &ObjectInLua::handle,
-		"position", sol::property(&ObjectInLua::GetPosition, &ObjectInLua::SetPosition),
-		"valid", sol::property(&ObjectInLua::IsValid),
-		"Move", sol::overload(sol::resolve<void(const Vector3D&)>(&ObjectInLua::Move), sol::resolve<void(float,float,float)>(&ObjectInLua::Move)),
-		"component", &ObjectInLua::component,
-		"child", &ObjectInLua::child
+		"new", sol::no_constructor,
+		"get_by_id", [](uint64_t id) {return OM.Get(id);},
+		"get_by_name", [](const std::string& name) {return OM.GetByName(name); },
+		"id", sol::property([](Object& obj) {return obj.handle.ToUInt64();}),
+		"position", &Object::position,
+		"move", sol::overload(sol::resolve<void(const Vector3D&)>(&Object::Move), sol::resolve<void(float,float,float)>(&Object::Move)),
+		"get_component", [](Object& obj, const std::string& type) -> sol::object {
+		auto hCompo = obj.GetComponent(type); 
+		return FW.lua["Component"]["get"](hCompo.ToUInt64());
+	},
+		"child_list", sol::readonly(&Object::childList)
 		);
 }

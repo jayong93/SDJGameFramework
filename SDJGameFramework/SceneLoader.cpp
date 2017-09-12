@@ -76,29 +76,26 @@ void SceneLoader::LoadComponentOfObject(rapidjson::GenericObject<true, rapidjson
 		if (hasVar && objData["var"].HasMember(compoName))
 		{
 			auto varData = objData["var"][compoName].GetObject();
-			sol::table compoTable = lua["components"].get<sol::table>();
+			sol::userdata compo = lua["Component"]["get"](compoHandle.ToUInt64());
 			for (auto& d : varData)
 			{
 				std::string vName = d.name.GetString();
 				switch (d.value.GetType())
 				{
 					case rapidjson::Type::kNumberType:
-						compoTable.traverse_set(compoHandle.ToUInt64(), vName, d.value.GetFloat());
+						compo[vName] = d.value.GetFloat();
 						break;
 					case rapidjson::Type::kStringType:
-						compoTable.traverse_set(compoHandle.ToUInt64(), vName, d.value.GetString());
+						compo[vName] = d.value.GetString();
 						break;
 					case rapidjson::Type::kArrayType:
 					{
-						sol::table vr = lua.create_table();
+						sol::table varg = lua.create_table();
 						for (auto& item : d.value.GetArray())
 						{
-							SetMultiArgs(vr, item);
+							SetMultiArgs(varg, item);
 						}
-						//sol::userdata u = compoTable[compoHandle.ToUInt64()][vName];
-						//if (u.valid())
-						//	u.set(vr);
-						compoTable.traverse_set(compoHandle.ToUInt64(), vName, vr);
+						compo[vName] = varg;
 					}
 					break;
 				}

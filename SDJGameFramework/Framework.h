@@ -28,13 +28,15 @@ struct Framework
 	void DisableFrameLimit() { limitedTime = 0.; }
 
 	sol::state lua;
-	sol::table componentTable;
+	sol::table typeTable, luaScriptTable;
 	std::function<sol::protected_function_result(lua_State*, sol::protected_function_result)> luaErrFunc;
 
 private:
 	Framework();
 	~Framework() {}
 	void LoadScripts();
+	void LuaInit();
+	void TypeInit();
 
 	std::unique_ptr<RenderSystem> render;
 	std::unique_ptr<GameLogic> logic;

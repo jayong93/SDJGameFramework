@@ -16,6 +16,7 @@ struct Component
 	virtual ~Component() = 0;
 
 	virtual void SendMsg(sol::object& args);
+	static void RegisterInLua();
 
 	ObjectHandle owner;
 	ComponentHandle handle;

@@ -16,7 +16,7 @@ struct Object
 {
 	ObjectHandle handle, parent;
 	std::vector<ComponentHandle> compoList;
-	std::vector<ObjectHandle> childList;
+	std::vector<uint64_t> childList;
 	std::map<uint64_t, size_t> compoIdxMap;
 	std::map<size_t, ComponentHandle> compoTypeMap;
 	std::string name;
@@ -24,6 +24,7 @@ struct Object
 	Vector3D position;
 
 	void Move(const Vector3D& offset) { position += offset; }
+	void Move(float x, float y, float z) { Move({ x,y,z }); }
 
 	bool AddComponent(ComponentHandle handle);
 	bool DelComponent(ComponentHandle handle);
