@@ -1,5 +1,7 @@
 #pragma once
 #include "Component.h"
+#include "Vector3D.h"
+#include "Vertex.h"
 
 % for c in data:
 struct ${c["name"]} : public Component
@@ -14,14 +16,14 @@ struct ${c["name"]} : public Component
         % endfor
     };
     % endfor
-    % endif
 
+    % endif
     % if c.get("simple_var"):
     % for v in c["simple_var"]:
     ${v["type"]} ${v["name"]};
     % endfor
-    % endif
 
+    % endif
     % if c.get("enum"):
     % for v in c["enum"]:
     enum class ${v["type"]} { \

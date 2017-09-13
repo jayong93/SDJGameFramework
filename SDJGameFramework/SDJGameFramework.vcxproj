@@ -401,47 +401,32 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="template\Components.cpp.in">
+    <CustomBuild Include="template\Components.json">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Test|x64'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">python "$(ProjectDir)instancing_template.py"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Test|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Test|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="template\Components.h.in">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Test|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Test|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Test|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">python "$(ProjectDir)instancing_template.py" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Instancing Templates</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Components.cpp;$(ProjectDir)Components.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Test|x64'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)template\Components.h.in;$(ProjectDir)template\Components.cpp.in;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -148,11 +148,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="template\Components.cpp.in">
+    <None Include="template\Components.json">
       <Filter>템플릿 파일</Filter>
-    </CustomBuild>
-    <CustomBuild Include="template\Components.h.in">
-      <Filter>템플릿 파일</Filter>
-    </CustomBuild>
+    </None>
   </ItemGroup>
 </Project>
