@@ -28,6 +28,9 @@
     <Filter Include="소스 파일\Object">
       <UniqueIdentifier>{cb671aa0-9490-4003-aa6f-8fae2376244c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="템플릿 파일">
+      <UniqueIdentifier>{66a958ec-204c-4a09-a068-193139650087}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -140,5 +143,16 @@
     <ClInclude Include="Components.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="template\Components.cpp.in">
+      <Filter>템플릿 파일</Filter>
+    </CustomBuild>
+    <CustomBuild Include="template\Components.h.in">
+      <Filter>템플릿 파일</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ struct ${c["name"]} : public Component
 {
     virtual ~${c["name"]}() {}
 
+    % if c.get("multi_name_var"):
     % for v in c["multi_name_var"]:
     union {
         % for n in v["name"]:
@@ -13,11 +14,15 @@ struct ${c["name"]} : public Component
         % endfor
     };
     % endfor
+    % endif
 
+    % if c.get("simple_var"):
     % for v in c["simple_var"]:
     ${v["type"]} ${v["name"]};
     % endfor
+    % endif
 
+    % if c.get("enum"):
     % for v in c["enum"]:
     enum class ${v["type"]} { \
         % for val in v["value"]:
@@ -28,13 +33,16 @@ ${val}${', ' if not loop.last else ' '}\
     static const std::map<std::string, ${v["type"]}> stringTo${v["type"]};
 
     % endfor
+    % endif
     static MessageMap InitMsgMap() {return MessageMap();}
     static void RegisterInLua();
 
 private:
+    % if c.get("enum"):
     % for v in c["enum"]:
     static std::map<std::string, ${v["type"]}> GetEnum${v["type"]}Map();
     % endfor
+    % endif
 };
 
 % endfor

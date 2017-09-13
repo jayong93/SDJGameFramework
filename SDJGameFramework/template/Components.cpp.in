@@ -26,6 +26,7 @@ c.${vname} = v.as<sol::table>(); \
 
 % for c in data:
 \
+    % if c.get("enum"):
     % for e in c["enum"]:
 const char* ${c["name"]}::stringFrom${e["type"]}[] = { \
         % for val in e["value"]:
@@ -42,6 +43,7 @@ std::map<std::string, ${c["name"]}::${e["type"]}> ${c["name"]}::GetEnum${e["type
     return map;
 }
     % endfor
+    % endif
 
 void ${c["name"]}::RegisterInLua()
 {
@@ -50,6 +52,7 @@ void ${c["name"]}::RegisterInLua()
         "get", [](uint64_t id) {return CM.GetBy<${c["name"]}>(id);},
         "handle", &${c["name"]}::handle,
         "owner", &${c["name"]}::owner,
+    % if c.get("simple_var"):
     % for v in c["simple_var"]:
         "${v["name"]}", \
         % if v.get("table_setter"):
@@ -58,15 +61,20 @@ sol::property([](${c["name"]}& compo){return compo.${v["name"]};}, ${table_sette
 &${c["name"]}::${v["name"]},
         % endif
     % endfor
+    % endif
+    % if c.get("multi_name_var"):
     % for v in c["multi_name_var"]:
         % for n in v["name"]:
         "${n}", &${c["name"]}::${n},
         % endfor
     % endfor
+    % endif
+    % if c.get("enum"):
     % for v in c["enum"]:
         "${v["name"]}", sol::property(${enum_getter(c["name"], v["name"], v["type"])},
             ${enum_setter(c["name"], v["name"], v["type"])})${',' if not loop.last else ''}
     % endfor
+    % endif
     );
 }
 

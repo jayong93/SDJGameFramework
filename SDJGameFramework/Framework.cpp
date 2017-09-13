@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Vertex.h"
 #include "Systems.h"
 #include "Framework.h"
 #include "HandleManagers.h"
@@ -127,6 +128,7 @@ void Framework::LuaInit()
 void Framework::TypeInit()
 {
 	Vector3D::RegisterInLua(lua);
+	Vertex::RegisterInLua(typeTable);
 	Object::RegisterInLua();
 	Component::RegisterInLua();
 	Shape::RegisterInLua();
